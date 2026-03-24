@@ -1,0 +1,83 @@
+/* Fond général */
+QWidget {
+    background-color: #1a243d;
+    font-family: "Segoe UI", sans-serif;
+    color: white;
+}
+
+/* Panneau de droite */
+#rightFrame {
+    background-color: #1a243d;
+    border-left: 1px solid #2d3d5a;
+}
+
+/* Panneau de gauche (Dégradé si pas d'image) */
+#leftFrame {
+    background: #1a243d;
+}
+
+/* Titre Principal */
+#mainTitle {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+/* Labels des champs */
+#fieldLabel {
+    font-size: 13px;
+    color: #a0aec0;
+    margin-bottom: 5px;
+}
+
+/* Champs de texte */
+QLineEdit {
+    background-color: #2d3d5a;
+    border: 1px solid #3f4e6b;
+    border-radius: 5px;
+    padding-left: 10px;
+    color: white;
+    font-size: 14px;
+}
+
+QLineEdit:focus {
+    border: 1px solid #3b82f6;
+}
+
+/* Bouton Se Connecter */
+#loginButton {
+    background-color: #3b82f6;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    height: 40px;
+}
+
+#loginButton:hover {
+    background-color: #2563eb;
+}
+
+#loginButton:pressed {
+    background-color: #1d4ed8;
+}
+
+/* Liens cliquables */
+#link {
+    color: #a0aec0;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+#link:hover {
+    color: #ffffff;
+}
+
+/* Message d'état */
+#statusMessage {
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 10px;
+}
