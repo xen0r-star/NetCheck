@@ -89,9 +89,6 @@ class LoginWindow(QWidget):
 
 	def login(self):
 		if validate_credentials(self.username.text(), self.password.text()):
-			self.message.setText("Connexion réussie !")
-			self.message.setStyleSheet("color: #4CAF50;")
-			
 			self.dashboard_window = DashboardWindow()
 			self.dashboard_window.logout_requested.connect(self.on_logout)
 			self.dashboard_window.show()
@@ -103,5 +100,6 @@ class LoginWindow(QWidget):
 
 
 	def on_logout(self):
+		self.message.setText("")
 		self.password.clear()
 		self.show()
