@@ -1,15 +1,19 @@
 import sys
 import os
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
-    QLabel, QLineEdit, QPushButton, QFrame, QSpacerItem, QSizePolicy
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QLineEdit, QPushButton, QFrame
 )
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
+
+from dashboard import DashboardWindow
 
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
+
+        self.dashboard_window = None
 
         self.setWindowTitle("NetTool Admin")
         self.setFixedSize(900, 500)
@@ -96,9 +100,19 @@ class LoginWindow(QWidget):
         if self.username.text() == "admin" and self.password.text() == "1234":
             self.message.setText("Connexion réussie !")
             self.message.setStyleSheet("color: #4CAF50;")
+            self.dashboard_window = DashboardWindow()
+            self.dashboard_window.logout_requested.connect(self.on_logout)
+            self.dashboard_window.show()
+            self.hide()
         else:
             self.message.setText("Identifiants incorrects")
             self.message.setStyleSheet("color: #FF5252;")
+
+    def on_logout(self):
+        self.password.clear()
+        self.message.setText("Deconnecte")
+        self.message.setStyleSheet("color: #a0aec0;")
+        self.show()
 
 
 

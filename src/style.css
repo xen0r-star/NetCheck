@@ -81,3 +81,102 @@ QLineEdit:focus {
     font-weight: bold;
     margin-top: 10px;
 }
+
+/* Dashboard */
+#navFrame {
+    background-color: #152038;
+    border-right: 1px solid #2d3d5a;
+}
+
+#contentFrame {
+    background-color: #1a243d;
+}
+
+#navButton {
+    background-color: #22304d;
+    border: 1px solid #2f3f61;
+    border-radius: 6px;
+    color: #dbe7ff;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px 12px;
+}
+
+#navButton:hover {
+    border: 1px solid #3b82f6;
+}
+
+#navButton:checked {
+    background-color: #3b82f6;
+    border: 1px solid #3b82f6;
+    color: white;
+}
+
+#navSearch {
+    background-color: #22304d;
+    border: 1px solid #2f3f61;
+    border-radius: 6px;
+    color: #dbe7ff;
+    min-height: 36px;
+    padding-left: 10px;
+    margin-bottom: 4px;
+}
+
+#navSearch:focus {
+    border: 1px solid #3b82f6;
+}
+
+#logoutButton {
+    background-color: #334155;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: bold;
+    min-height: 38px;
+    text-align: left;
+    padding: 8px 12px;
+}
+
+#logoutButton:hover {
+    background-color: #475569;
+    border: 1px solid #64748b;
+}
+
+#logoutButton:pressed {
+    background-color: #1e293b;
+}
+
+#actionButton {
+    background-color: #3b82f6;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    min-height: 40px;
+}
+
+#actionButton:hover {
+    background-color: #2563eb;
+}
+
+#actionButton:pressed {
+    background-color: #1d4ed8;
+}
+
+QTableWidget {
+    background-color: #22304d;
+    border: 1px solid #3f4e6b;
+    color: white;
+    gridline-color: #3f4e6b;
+}
+
+QHeaderView::section {
+    background-color: #2d3d5a;
+    color: #dbe7ff;
+    border: none;
+    font-weight: bold;
+    padding: 6px;
+}
