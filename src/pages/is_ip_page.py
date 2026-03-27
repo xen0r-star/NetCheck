@@ -18,15 +18,18 @@ class IsIpPage(QWidget):
     def __init__(self):
         super().__init__()
 
+        # --- Structure principale ---
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
+        # --- Carte outil ---
         card = QFrame()
         card.setObjectName("toolCard")
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(24, 22, 24, 22)
         card_layout.setSpacing(14)
 
+        # --- Ligne de saisie ---
         form_row = QHBoxLayout()
         form_row.setSpacing(10)
 
@@ -46,6 +49,7 @@ class IsIpPage(QWidget):
         form_row.addWidget(self.ip_input, 1)
         form_row.addWidget(run_button)
 
+        # --- Etat vide ---
         self.empty_state = QFrame()
         self.empty_state.setObjectName("emptyState")
         empty_layout = QHBoxLayout(self.empty_state)
@@ -63,6 +67,7 @@ class IsIpPage(QWidget):
         empty_layout.addWidget(empty_text)
         empty_layout.addStretch(1)
 
+        # --- Carte resultat ---
         self.result_card = QFrame()
         self.result_card.setObjectName("resultCard")
         self.result_card.setVisible(False)
@@ -93,6 +98,7 @@ class IsIpPage(QWidget):
         layout.addWidget(card)
 
     def run_check(self):
+        # --- Execution de la verification ---
         ip = self.ip_input.text().strip()
         valid = isIp(ip)
 

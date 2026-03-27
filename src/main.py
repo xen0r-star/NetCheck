@@ -22,8 +22,6 @@ class LoginWindow(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-
-
         # --- SECTION GAUCHE ---
         self.left_frame = QFrame()
         self.left_frame.setObjectName("leftFrame")
@@ -39,8 +37,6 @@ class LoginWindow(QWidget):
         
         left_layout.addWidget(self.illustration)
         main_layout.addWidget(self.left_frame, 1)
-
-
 
         # --- SECTION DROITE (Formulaire) ---
         self.right_frame = QFrame()
@@ -78,7 +74,6 @@ class LoginWindow(QWidget):
         self.message.setObjectName("statusMessage")
         self.message.setAlignment(Qt.AlignCenter)
 
-
         # Organisation du layout droit
         right_layout.addWidget(title)
         right_layout.addSpacing(30)
@@ -92,11 +87,10 @@ class LoginWindow(QWidget):
         right_layout.addWidget(self.message)
         right_layout.addSpacing(70)
 
-
         main_layout.addWidget(self.right_frame, 1)
 
-
     def login(self):
+        # --- Validation de connexion ---
         if self.username.text() == "admin" and self.password.text() == "1234":
             self.message.setText("Connexion réussie !")
             self.message.setStyleSheet("color: #4CAF50;")
@@ -113,9 +107,6 @@ class LoginWindow(QWidget):
         self.message.setText("Deconnecte")
         self.message.setStyleSheet("color: #a0aec0;")
         self.show()
-
-
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

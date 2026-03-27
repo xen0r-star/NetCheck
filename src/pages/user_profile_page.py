@@ -8,15 +8,18 @@ class UserProfilePage(QWidget):
     def __init__(self):
         super().__init__()
 
+        # --- Structure principale ---
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
+        # --- Carte profil ---
         card = QFrame()
         card.setObjectName("toolCard")
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(24, 22, 24, 22)
         card_layout.setSpacing(12)
 
+        # --- Informations utilisateur ---
         profile_card = QFrame()
         profile_card.setObjectName("resultCard")
         profile_layout = QVBoxLayout(profile_card)
@@ -43,6 +46,7 @@ class UserProfilePage(QWidget):
         profile_layout.addWidget(email)
         profile_layout.addWidget(role_badge, 0, Qt.AlignLeft)
 
+        # --- Action session ---
         logout_button = QPushButton("Deconnexion")
         logout_button.setObjectName("logoutActionButton")
         logout_button.setCursor(Qt.PointingHandCursor)
