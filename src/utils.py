@@ -11,12 +11,21 @@ class ClassMask(Enum):
 
 
 def isIp(ip):
-    if (ip.count(".") != 3): return False
+    if not isinstance(ip, str):
+        return False
     
+    if ip.count(".") != 3:
+        return False
+
     numbers = ip.split(".")
     for number in numbers:
-        if (int(number) < 0 or int(number) > 255): return False
-    
+        if not number.isdigit():
+            return False
+        
+        value = int(number)
+        if value < 0 or value > 255:
+            return False
+
     return True
 
 def isClassFull(mask):
@@ -67,7 +76,7 @@ def getIPClassMask(ip):
 
 
 def getSubnet(ip, mask):
-    if (not isIp(ip)): return ClassMask.ERROR.value
+    if (not isIp(ip) or not isIp(mask)): return ClassMask.ERROR.value
 
     ipParts = [int(x) for x in ip.split(".")]
     maskParts = [int(x) for x in mask.split(".")]
@@ -106,13 +115,3 @@ def genererTableauCIDR():
         tableResult.append(line)
 
     return tableResult
-
-
-
-print(getIPClass("192.168.12.1"))
-print(getIPClassMask("192.168.12.1"))
-
-print(isClassFull("255.255.255.0"))
-print(getSubnet("192.168.12.1", "255.255.255.0"))
-
-print(genererTableauCIDR())
