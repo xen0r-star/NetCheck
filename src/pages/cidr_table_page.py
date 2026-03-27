@@ -14,15 +14,18 @@ class CidrTablePage(QWidget):
     def __init__(self):
         super().__init__()
 
+        # --- Structure principale ---
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
+        # --- Carte de contenu ---
         card = QFrame()
         card.setObjectName("toolCard")
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(24, 22, 24, 22)
         card_layout.setSpacing(14)
 
+        # --- Tableau CIDR ---
         self.table = QTableWidget(0, 3)
         self.table.setHorizontalHeaderLabels(["CIDR", "Binaire", "Décimal"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -36,9 +39,9 @@ class CidrTablePage(QWidget):
 
         layout.addWidget(card)
 
+        self._load_table_data()
 
-
-
+    def _load_table_data(self):
         rows = genererTableauCIDR()
         self.table.setRowCount(len(rows))
 

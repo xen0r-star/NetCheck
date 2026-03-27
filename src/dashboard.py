@@ -34,6 +34,7 @@ class DashboardWindow(QWidget):
         self.setWindowTitle("NetTool Admin - Dashboard")
         self.setFixedSize(1150, 650)
 
+        # --- Structure principale ---
         root = QHBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
@@ -44,6 +45,7 @@ class DashboardWindow(QWidget):
         shell_layout.setContentsMargins(0, 0, 0, 0)
         shell_layout.setSpacing(0)
 
+        # --- Barre laterale ---
         self.nav = QFrame()
         self.nav.setObjectName("navFrame")
         self.nav.setFixedWidth(222)
@@ -61,6 +63,7 @@ class DashboardWindow(QWidget):
         nav_layout.addWidget(subtitle)
         nav_layout.addSpacing(14)
 
+        # --- Zone des pages ---
         self.stack = QStackedWidget()
         self.stack.setObjectName("pagesStack")
 
@@ -75,20 +78,19 @@ class DashboardWindow(QWidget):
         user_page.logout_requested.connect(self.request_logout)
 
         pages = [
-            ("Validation IP", "isip", "Vérifie si une adresse IPv4 est valide", QIcon(os.path.join(icons_dir, "ip.svg")), IsIpPage()),
-            ("Masque Classful", "isclassfull", "Vérifie si un masque contient uniquement des 255 et des 0", QIcon(os.path.join(icons_dir, "mask.svg")), IsClassFullPage()),
-            ("Classe IP", "getipclass", "Détermine la classe de l'adresse IPv4", QIcon(os.path.join(icons_dir, "class.svg")), GetIpClassPage()),
-            ("Masque Par Classe", "getipclassmask", "Retourne le masque par défaut selon la classe IP", QIcon(os.path.join(icons_dir, "mask.svg")), GetIpClassMaskPage()),
-            ("Calcul Sous-Reseau", "getsubnet", "Calcule l'adresse réseau à partir de l'IP et du masque", QIcon(os.path.join(icons_dir, "subnet.svg")), GetSubnetPage()),
-            ("Table CIDR", "generertableaucidr", "Affiche les correspondances CIDR, binaire et décimal", QIcon(os.path.join(icons_dir, "cidr.svg")), CidrTablePage()),
+            ("Validation IP", "Vérifie si une adresse IPv4 est valide", QIcon(os.path.join(icons_dir, "ip.svg")), IsIpPage()),
+            ("Masque Classful", "Vérifie si un masque contient uniquement des 255 et des 0", QIcon(os.path.join(icons_dir, "mask.svg")), IsClassFullPage()),
+            ("Classe IP", "Détermine la classe de l'adresse IPv4", QIcon(os.path.join(icons_dir, "class.svg")), GetIpClassPage()),
+            ("Masque Par Classe", "Retourne le masque par défaut selon la classe IP", QIcon(os.path.join(icons_dir, "mask.svg")), GetIpClassMaskPage()),
+            ("Calcul Sous-Reseau", "Calcule l'adresse réseau à partir de l'IP et du masque", QIcon(os.path.join(icons_dir, "subnet.svg")), GetSubnetPage()),
+            ("Table CIDR", "Affiche les correspondances CIDR, binaire et décimal", QIcon(os.path.join(icons_dir, "cidr.svg")), CidrTablePage()),
         ]
 
         self.button_group = QButtonGroup(self)
         self.button_group.setExclusive(True)
-        self.nav_buttons = []
         self.page_descriptions = {}
 
-        for index, (name, key, description, icon, page) in enumerate(pages):
+        for index, (name, description, icon, page) in enumerate(pages):
             self.stack.addWidget(page)
             self.page_descriptions[index] = description
 
@@ -101,7 +103,6 @@ class DashboardWindow(QWidget):
             btn.clicked.connect(lambda _checked, idx=index, title=name: self.switch_page(idx, title))
             self.button_group.addButton(btn)
             nav_layout.addWidget(btn)
-            self.nav_buttons.append((index, key, btn))
 
         self.profile_page_index = self.stack.addWidget(user_page)
         self.page_descriptions[self.profile_page_index] = "Informations du compte et session actuelle"
@@ -123,6 +124,7 @@ class DashboardWindow(QWidget):
         user_layout.addWidget(user_name)
         user_layout.addWidget(user_role)
 
+        # Ouvre la page profil depuis la carte utilisateur.
         user_card.setCursor(Qt.PointingHandCursor)
         user_card.mousePressEvent = self.open_profile_page
 
@@ -167,24 +169,6 @@ class DashboardWindow(QWidget):
         self.switch_page(self.profile_page_index, "Profil Utilisateur")
         for button in self.button_group.buttons():
             button.setChecked(False)
-
-    def filter_pages(self, query):
-        normalized = query.strip().lower()
-        visible_indexes = []
-
-        for page_index, key, button in self.nav_buttons:
-            visible = normalized in key or normalized in button.text().lower()
-            button.setVisible(visible)
-            if visible:
-                visible_indexes.append(page_index)
-
-        current_button = self.button_group.checkedButton()
-        if current_button and not current_button.isVisible() and visible_indexes:
-            for page_index, _key, button in self.nav_buttons:
-                if page_index == visible_indexes[0]:
-                    button.setChecked(True)
-                    self.switch_page(page_index, button.text())
-                    break
 
     def request_logout(self):
         self.logout_requested.emit()

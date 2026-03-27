@@ -69,17 +69,6 @@ QLineEdit:focus {
     background-color: #1d4ed8;
 }
 
-/* Liens cliquables */
-#link {
-    color: #a0aec0;
-    font-size: 12px;
-    text-decoration: none;
-}
-
-#link:hover {
-    color: #ffffff;
-}
-
 /* Message d'état */
 #statusMessage {
     font-size: 13px;
@@ -146,19 +135,6 @@ QLineEdit:focus {
     color: white;
 }
 
-#topSearch {
-    background-color: #2f334b;
-    border: 1px solid #4a4f6d;
-    border-radius: 12px;
-    color: #ebefff;
-    font-size: 13px;
-    padding-left: 12px;
-}
-
-#topSearch:focus {
-    border: 1px solid #b49cff;
-}
-
 #navUserCard {
     background-color: #22263a;
     border: 1px solid #333955;
@@ -176,11 +152,6 @@ QLineEdit:focus {
     font-size: 13px;
 }
 
-#dashboardGreeting {
-    color: #a7aec9;
-    font-size: 15px;
-}
-
 #dashboardHeading {
     color: #f8fafc;
     font-size: 38px;
@@ -190,12 +161,6 @@ QLineEdit:focus {
 #dashboardSubheading {
     color: #b3bad5;
     font-size: 15px;
-}
-
-#pageContainer {
-    background-color: #2b3046;
-    border: 1px solid #393f5b;
-    border-radius: 0;
 }
 
 #toolCard {
@@ -222,17 +187,6 @@ QLineEdit:focus {
     background-color: #6546dc;
 }
 
-#toolTitle {
-    color: #f8fafc;
-    font-size: 22px;
-    font-weight: 700;
-}
-
-#toolHint {
-    color: #d0d5ea;
-    font-size: 13px;
-}
-
 #primaryInput {
     background-color: #2e3349;
     border: 1px solid #4a506f;
@@ -243,12 +197,6 @@ QLineEdit:focus {
 
 #primaryInput:focus {
     border: 1px solid #a890ff;
-}
-
-#tableShell {
-    background-color: #323751;
-    border: 1px solid #474d6f;
-    border-radius: 14px;
 }
 
 QTableWidget,
