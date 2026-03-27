@@ -1,5 +1,11 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLabel, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QFrame,
+    QHeaderView,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from utils import genererTableauCIDR
 
@@ -9,32 +15,30 @@ class CidrTablePage(QWidget):
         super().__init__()
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(30, 30, 30, 30)
-        layout.setSpacing(12)
+        layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel("Table CIDR")
-        title.setObjectName("mainTitle")
-
-        hint = QLabel("Affiche les correspondances CIDR, binaire et décimal")
-        hint.setObjectName("fieldLabel")
-
-        run_button = QPushButton("Charger la table")
-        run_button.setObjectName("actionButton")
-        run_button.setCursor(Qt.PointingHandCursor)
-        run_button.clicked.connect(self.load_table)
+        card = QFrame()
+        card.setObjectName("toolCard")
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(24, 22, 24, 22)
+        card_layout.setSpacing(14)
 
         self.table = QTableWidget(0, 3)
         self.table.setHorizontalHeaderLabels(["CIDR", "Binaire", "Décimal"])
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table.verticalHeader().setVisible(False)
         self.table.setAlternatingRowColors(True)
+        self.table.setObjectName("cidrTable")
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
 
-        layout.addWidget(title)
-        layout.addWidget(hint)
-        layout.addWidget(run_button)
-        layout.addWidget(self.table)
+        card_layout.addWidget(self.table)
 
-    def load_table(self):
+        layout.addWidget(card)
+
+
+
+
         rows = genererTableauCIDR()
         self.table.setRowCount(len(rows))
 

@@ -1,5 +1,15 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QStyle,
+    QVBoxLayout,
+    QWidget,
+)
 
 from utils import isIp
 
@@ -9,41 +19,98 @@ class IsIpPage(QWidget):
         super().__init__()
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(30, 30, 30, 30)
-        layout.setSpacing(12)
+        layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel("Validation IP")
-        title.setObjectName("mainTitle")
+        card = QFrame()
+        card.setObjectName("toolCard")
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(24, 22, 24, 22)
+        card_layout.setSpacing(14)
 
-        hint = QLabel("Vérifie si une adresse IPv4 est valide")
-        hint.setObjectName("fieldLabel")
+        form_row = QHBoxLayout()
+        form_row.setSpacing(10)
 
         self.ip_input = QLineEdit()
         self.ip_input.setPlaceholderText("Ex: 192.168.1.10")
-        self.ip_input.setFixedHeight(40)
+        self.ip_input.setObjectName("primaryInput")
+        self.ip_input.setFixedHeight(48)
+        self.ip_input.returnPressed.connect(self.run_check)
 
         run_button = QPushButton("Vérifier")
         run_button.setObjectName("actionButton")
+        run_button.setFixedWidth(140)
+        run_button.setFixedHeight(48)
         run_button.setCursor(Qt.PointingHandCursor)
         run_button.clicked.connect(self.run_check)
 
-        self.result = QLabel("Résultat en attente")
-        self.result.setObjectName("statusMessage")
-        self.result.setAlignment(Qt.AlignLeft)
+        form_row.addWidget(self.ip_input, 1)
+        form_row.addWidget(run_button)
 
-        layout.addWidget(title)
-        layout.addWidget(hint)
-        layout.addWidget(self.ip_input)
-        layout.addWidget(run_button)
-        layout.addWidget(self.result)
-        layout.addStretch(1)
+        self.empty_state = QFrame()
+        self.empty_state.setObjectName("emptyState")
+        empty_layout = QHBoxLayout(self.empty_state)
+        empty_layout.setContentsMargins(18, 14, 18, 14)
+        empty_layout.setSpacing(10)
+
+        icon_label = QLabel()
+        search_icon = QApplication.style().standardIcon(QStyle.SP_FileDialogContentsView)
+        icon_label.setPixmap(search_icon.pixmap(22, 22))
+
+        empty_text = QLabel("Entrez une IP pour voir les détails ici")
+        empty_text.setObjectName("emptyStateText")
+
+        empty_layout.addWidget(icon_label)
+        empty_layout.addWidget(empty_text)
+        empty_layout.addStretch(1)
+
+        self.result_card = QFrame()
+        self.result_card.setObjectName("resultCard")
+        self.result_card.setVisible(False)
+        result_layout = QVBoxLayout(self.result_card)
+        result_layout.setContentsMargins(18, 14, 18, 14)
+        result_layout.setSpacing(8)
+
+        self.result_ip = QLabel("IP:")
+        self.result_ip.setObjectName("resultIp")
+
+        self.status_badge = QLabel("INVALIDE")
+        self.status_badge.setObjectName("badgeNeutral")
+        self.status_badge.setFixedWidth(94)
+        self.status_badge.setAlignment(Qt.AlignCenter)
+
+        self.result_message = QLabel("")
+        self.result_message.setObjectName("statusMessage")
+
+        result_layout.addWidget(self.result_ip)
+        result_layout.addWidget(self.status_badge, 0, Qt.AlignLeft)
+        result_layout.addWidget(self.result_message)
+
+        card_layout.addLayout(form_row)
+        card_layout.addWidget(self.empty_state)
+        card_layout.addWidget(self.result_card)
+        card_layout.addStretch(1)
+
+        layout.addWidget(card)
 
     def run_check(self):
         ip = self.ip_input.text().strip()
         valid = isIp(ip)
+
+        self.empty_state.setVisible(False)
+        self.result_card.setVisible(True)
+        self.result_ip.setText(f"IP: {ip if ip else '-'}")
+
         if valid:
-            self.result.setText("Adresse IP valide")
-            self.result.setStyleSheet("color: #4CAF50;")
+            self.status_badge.setText("VALIDE")
+            self.status_badge.setObjectName("badgeValid")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            self.result_message.setText("Adresse IP valide")
+            self.result_message.setStyleSheet("color: #22c55e;")
         else:
-            self.result.setText("Adresse IP invalide")
-            self.result.setStyleSheet("color: #FF5252;")
+            self.status_badge.setText("INVALIDE")
+            self.status_badge.setObjectName("badgeInvalid")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            self.result_message.setText("Adresse IP invalide")
+            self.result_message.setStyleSheet("color: #ef4444;")
