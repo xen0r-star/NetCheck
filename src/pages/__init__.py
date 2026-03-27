@@ -4,3 +4,4 @@ from .get_ip_class_page import GetIpClassPage
 from .get_ip_class_mask_page import GetIpClassMaskPage
 from .get_subnet_page import GetSubnetPage
 from .cidr_table_page import CidrTablePage
+from .user_profile_page import UserProfilePage
