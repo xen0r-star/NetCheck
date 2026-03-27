@@ -1,17 +1,8 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QApplication,
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QStyle,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
 from utils import isIp
+
 
 
 class IsIpPage(QWidget):
@@ -56,16 +47,12 @@ class IsIpPage(QWidget):
         empty_layout.setContentsMargins(18, 14, 18, 14)
         empty_layout.setSpacing(10)
 
-        icon_label = QLabel()
-        search_icon = QApplication.style().standardIcon(QStyle.SP_FileDialogContentsView)
-        icon_label.setPixmap(search_icon.pixmap(22, 22))
-
         empty_text = QLabel("Entrez une IP pour voir les détails ici")
         empty_text.setObjectName("emptyStateText")
 
-        empty_layout.addWidget(icon_label)
         empty_layout.addWidget(empty_text)
         empty_layout.addStretch(1)
+
 
         # --- Carte resultat ---
         self.result_card = QFrame()
@@ -97,6 +84,7 @@ class IsIpPage(QWidget):
 
         layout.addWidget(card)
 
+
     def run_check(self):
         # --- Execution de la verification ---
         ip = self.ip_input.text().strip()
@@ -113,6 +101,7 @@ class IsIpPage(QWidget):
             self.status_badge.style().polish(self.status_badge)
             self.result_message.setText("Adresse IP valide")
             self.result_message.setStyleSheet("color: #22c55e;")
+
         else:
             self.status_badge.setText("INVALIDE")
             self.status_badge.setObjectName("badgeInvalid")

@@ -2,26 +2,18 @@ import os
 
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import (
-    QButtonGroup,
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QPushButton,
-    QStackedWidget,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QButtonGroup, QFrame, QHBoxLayout, QLabel, QPushButton, QStackedWidget, QVBoxLayout, QWidget
 
-from pages import (
+from .views import (
     CidrTablePage,
     GetIpClassMaskPage,
     GetIpClassPage,
     GetSubnetPage,
     IsClassFullPage,
     IsIpPage,
-    UserProfilePage,
+    UserProfilePage
 )
+
 
 
 class DashboardWindow(QWidget):
@@ -31,7 +23,7 @@ class DashboardWindow(QWidget):
         super().__init__()
 
         self.setObjectName("dashboardWindow")
-        self.setWindowTitle("NetTool Admin - Dashboard")
+        self.setWindowTitle("NetCheck - Dashboard")
         self.setFixedSize(1150, 650)
 
         # --- Structure principale ---
@@ -53,15 +45,18 @@ class DashboardWindow(QWidget):
         nav_layout.setContentsMargins(16, 20, 16, 16)
         nav_layout.setSpacing(10)
 
-        brand = QLabel("NetTool")
+        brand = QLabel("NetCheck")
         brand.setObjectName("sidebarBrand")
 
-        subtitle = QLabel("Outils Réseau")
-        subtitle.setObjectName("sidebarSubtitle")
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
 
         nav_layout.addWidget(brand)
-        nav_layout.addWidget(subtitle)
-        nav_layout.addSpacing(14)
+        nav_layout.addWidget(separator)
+        nav_layout.addSpacing(10)
+
+
 
         # --- Zone des pages ---
         self.stack = QStackedWidget()
@@ -73,7 +68,8 @@ class DashboardWindow(QWidget):
         self.current_page_hint = QLabel("Vérifie si une adresse IPv4 est valide")
         self.current_page_hint.setObjectName("dashboardSubheading")
 
-        icons_dir = os.path.join(os.path.dirname(__file__), "assets", "icons")
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        icons_dir = os.path.join(base_dir, "assets", "icons")
         user_page = UserProfilePage()
         user_page.logout_requested.connect(self.request_logout)
 
@@ -118,7 +114,7 @@ class DashboardWindow(QWidget):
         user_name = QLabel("Admin")
         user_name.setObjectName("navUserName")
 
-        user_role = QLabel("Nom Prenom")
+        user_role = QLabel("Martin Alex")
         user_role.setObjectName("navUserRole")
 
         user_layout.addWidget(user_name)
@@ -159,16 +155,19 @@ class DashboardWindow(QWidget):
             self.button_group.buttons()[0].setChecked(True)
             self.switch_page(0, self.button_group.buttons()[0].text())
 
+
     def switch_page(self, page_index, title):
         self.stack.setCurrentIndex(page_index)
         self.current_page_title.setText(title)
         self.current_page_hint.setText(self.page_descriptions.get(page_index, ""))
         self.current_page_hint.setVisible(page_index != self.profile_page_index)
 
+
     def open_profile_page(self, _event):
         self.switch_page(self.profile_page_index, "Profil Utilisateur")
         for button in self.button_group.buttons():
             button.setChecked(False)
+
 
     def request_logout(self):
         self.logout_requested.emit()

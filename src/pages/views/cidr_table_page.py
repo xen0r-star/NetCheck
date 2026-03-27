@@ -1,13 +1,7 @@
-from PySide6.QtWidgets import (
-    QFrame,
-    QHeaderView,
-    QTableWidget,
-    QTableWidgetItem,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QFrame, QHeaderView, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 from utils import genererTableauCIDR
+
 
 
 class CidrTablePage(QWidget):
@@ -40,6 +34,7 @@ class CidrTablePage(QWidget):
         layout.addWidget(card)
 
         self._load_table_data()
+
 
     def _load_table_data(self):
         rows = genererTableauCIDR()
