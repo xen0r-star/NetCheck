@@ -1,18 +1,11 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget 
 
-from utils import isClassFull
+from utils import ClassMask, getSubnet, isIp
 
 
-class IsClassFullPage(QWidget):
+
+class GetSubnetPage(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -31,18 +24,24 @@ class IsClassFullPage(QWidget):
         row = QHBoxLayout()
         row.setSpacing(10)
 
+        self.ip_input = QLineEdit()
+        self.ip_input.setPlaceholderText("Ex: 192.168.12.1")
+        self.ip_input.setObjectName("primaryInput")
+        self.ip_input.setFixedHeight(46)
+
         self.mask_input = QLineEdit()
         self.mask_input.setPlaceholderText("Ex: 255.255.255.0")
         self.mask_input.setObjectName("primaryInput")
         self.mask_input.setFixedHeight(46)
         self.mask_input.returnPressed.connect(self.run_check)
 
-        run_button = QPushButton("Analyser")
+        run_button = QPushButton("Calculer")
         run_button.setObjectName("actionButton")
-        run_button.setFixedSize(130, 46)
+        run_button.setFixedSize(122, 46)
         run_button.setCursor(Qt.PointingHandCursor)
         run_button.clicked.connect(self.run_check)
 
+        row.addWidget(self.ip_input, 1)
         row.addWidget(self.mask_input, 1)
         row.addWidget(run_button)
 
@@ -52,7 +51,7 @@ class IsClassFullPage(QWidget):
         empty_layout = QHBoxLayout(self.empty_state)
         empty_layout.setContentsMargins(18, 14, 18, 14)
 
-        empty_text = QLabel("Saisissez un masque pour afficher le diagnostic")
+        empty_text = QLabel("Ajoutez IP + masque pour calculer le sous-réseau")
         empty_text.setObjectName("emptyStateText")
         empty_layout.addWidget(empty_text)
 
@@ -64,7 +63,7 @@ class IsClassFullPage(QWidget):
         result_layout.setContentsMargins(16, 12, 16, 12)
         result_layout.setSpacing(8)
 
-        self.status_badge = QLabel("STATUT")
+        self.status_badge = QLabel("SOUS-RESEAU")
         self.status_badge.setObjectName("badgeNeutral")
         self.status_badge.setAlignment(Qt.AlignCenter)
         self.status_badge.setFixedWidth(140)
@@ -82,29 +81,37 @@ class IsClassFullPage(QWidget):
 
         layout.addWidget(card)
 
+
     def run_check(self):
-        # --- Execution de l'analyse ---
+        # --- Execution du calcul de sous-reseau ---
+        ip = self.ip_input.text().strip()
         mask = self.mask_input.text().strip()
-        result = isClassFull(mask)
 
         self.empty_state.setVisible(False)
         self.result_card.setVisible(True)
 
-        if result == "error":
+        if not isIp(mask):
             self.result.setText("Masque invalide")
             self.result.setStyleSheet("color: #ef4444;")
-            self.status_badge.setText("INVALIDE")
+            self.status_badge.setText("ERREUR")
             self.status_badge.setObjectName("badgeInvalid")
-        elif result:
-            self.result.setText("Masque classful valide")
-            self.result.setStyleSheet("color: #22c55e;")
-            self.status_badge.setText("CLASSFUL")
-            self.status_badge.setObjectName("badgeValid")
-        else:
-            self.result.setText("Masque valide mais non classful")
-            self.result.setStyleSheet("color: #f59e0b;")
-            self.status_badge.setText("NON CLASSFUL")
-            self.status_badge.setObjectName("badgeWarn")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            return
 
+        subnet = getSubnet(ip, mask)
+        if subnet == ClassMask.ERROR.value:
+            self.result.setText("Adresse IP invalide")
+            self.result.setStyleSheet("color: #ef4444;")
+            self.status_badge.setText("ERREUR")
+            self.status_badge.setObjectName("badgeInvalid")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            return
+
+        self.result.setText(f"Sous-réseau: {subnet}")
+        self.result.setStyleSheet("color: #22c55e;")
+        self.status_badge.setText("CALCULE")
+        self.status_badge.setObjectName("badgeValid")
         self.status_badge.style().unpolish(self.status_badge)
         self.status_badge.style().polish(self.status_badge)

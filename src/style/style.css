@@ -83,8 +83,6 @@ QLineEdit:focus {
 
 #dashboardShell {
     background-color: #212336;
-    border: 1px solid #2a2d43;
-    border-radius: 0;
 }
 
 #navFrame {
@@ -113,7 +111,7 @@ QLineEdit:focus {
 }
 
 #navButton {
-    background-color: transparent;
+    background-color: #1e2234;
     border: 1px solid transparent;
     border-radius: 10px;
     color: #a1a8c5;
@@ -269,7 +267,7 @@ QHeaderView::section {
 /* Validation IP - etat vide et carte resultat */
 #emptyState {
     background-color: #31364f;
-    border: 1px dashed #5a638c;
+    border: 1px solid #5a638c;
     border-radius: 12px;
 }
 
