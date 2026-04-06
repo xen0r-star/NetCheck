@@ -1,11 +1,11 @@
 import os
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFrame
+from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtWidgets import QToolButton, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFrame
 
 from .dashboardPage import DashboardWindow
-from services.login import validate_credentials
+from services.database import Database
 
 
 
@@ -15,8 +15,15 @@ class LoginWindow(QWidget):
 
 		self.dashboard_window = None
 
-		self.setWindowTitle("NetTool Admin")
+		self.setWindowTitle("NetTool - Connexion")
 		self.setFixedSize(900, 500)
+		self.setWindowFlags(
+            Qt.Window |
+            Qt.CustomizeWindowHint |
+            Qt.WindowTitleHint |
+            Qt.WindowMinimizeButtonHint |
+            Qt.WindowCloseButtonHint
+        )
 
 		main_layout = QHBoxLayout(self)
 		main_layout.setContentsMargins(0, 0, 0, 0)
@@ -32,7 +39,7 @@ class LoginWindow(QWidget):
 		self.illustration.setAlignment(Qt.AlignCenter)
 
 		base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-		image_path = os.path.join(base_dir, "assets", "images", "digital-technology.jpeg")
+		image_path = os.path.join(base_dir, "assets", "images", "background.jpg")
 		pix = QPixmap(image_path)
 		if not pix.isNull():
 			self.illustration.setPixmap(pix.scaled(500, 500, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation))
@@ -63,6 +70,24 @@ class LoginWindow(QWidget):
 		self.password.setEchoMode(QLineEdit.Password)
 		self.password.setFixedSize(300, 40)
 
+		eye_open_icon = os.path.join(base_dir, "assets", "icons", "eye-open.svg")
+		eye_closed_icon = os.path.join(base_dir, "assets", "icons", "eye-closed.svg")
+		self.password_visible = False
+		self.password_toggle_icons = {
+			True: QIcon(eye_open_icon),
+			False: QIcon(eye_closed_icon),
+		}
+		self.password_toggle_action = self.password.addAction(
+			self.password_toggle_icons[False],
+			QLineEdit.TrailingPosition
+		)
+
+		toggle_button = self.password.findChild(QToolButton)
+		if toggle_button:
+			toggle_button.setCursor(Qt.PointingHandCursor)
+
+		self.password_toggle_action.triggered.connect(self.toggle_password_visibility)
+
 		login_button = QPushButton("Se connecter")
 		login_button.setObjectName("loginButton")
 		login_button.setCursor(Qt.PointingHandCursor)
@@ -88,18 +113,36 @@ class LoginWindow(QWidget):
 
 
 	def login(self):
-		if validate_credentials(self.username.text(), self.password.text()):
-			self.dashboard_window = DashboardWindow()
+		if not self.username.text().strip() or not self.password.text().strip():
+			self.message.setText("Champs incomplets")
+			self.message.setStyleSheet("color: #FFB74D;")
+			return
+
+		db = Database()
+
+		if db.validateCredentials(self.username.text(), self.password.text()):
+			user_info = db.getUserInfo()
+			self.dashboard_window = DashboardWindow(user_info=user_info)
 			self.dashboard_window.logout_requested.connect(self.on_logout)
 			self.dashboard_window.show()
 			self.hide()
 			
 		else:
-			self.message.setText("Identifiants incorrects")
+			self.message.setText(db.last_error if db.last_error else "Erreur de connexion")
 			self.message.setStyleSheet("color: #FF5252;")
 
 
 	def on_logout(self):
 		self.message.setText("")
 		self.password.clear()
+		self.password_visible = False
+		self.password.setEchoMode(QLineEdit.Password)
+		self.password_toggle_action.setIcon(self.password_toggle_icons[False])
 		self.show()
+
+
+	def toggle_password_visibility(self):
+		self.password_visible = not self.password_visible
+		echo_mode = QLineEdit.Normal if self.password_visible else QLineEdit.Password
+		self.password.setEchoMode(echo_mode)
+		self.password_toggle_action.setIcon(self.password_toggle_icons[self.password_visible])

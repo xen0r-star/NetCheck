@@ -1,0 +1,38 @@
+#leftFrame, #rightFrame {
+    background: #0f172a;
+}
+
+#rightFrame {
+    border-left: 1px solid #334155;
+}
+
+#mainTitle {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+#fieldLabel {
+    font-size: 14px;
+    color: #cbd5e1;
+    margin-bottom: 5px;
+}
+
+#loginButton {
+    background-color: #3b82f6;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    height: 44px;
+}
+
+#loginButton:hover {
+    background-color: #2563eb;
+}
+
+#loginButton:pressed {
+    background-color: #1d4ed8;
+}

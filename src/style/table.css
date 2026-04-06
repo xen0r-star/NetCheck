@@ -1,0 +1,63 @@
+QTableWidget, #cidrTable {
+    background-color: #2f3450;
+    border: 1px solid #454b69;
+    border-radius: 10px;
+    color: #f8fafc;
+}
+
+#cidrTable::item:alternate {
+    background-color: #343a57;
+}
+
+#cidrTable::item:selected {
+    background-color: #5b63a5;
+    color: #ffffff;
+}
+
+QHeaderView::section {
+    background-color: #3f4562;
+    color: #f3f4ff;
+    border: none;
+    font-weight: bold;
+    padding: 8px;
+}
+
+#cidrTable QScrollBar:vertical, #cidrTable QScrollBar:horizontal {
+    background: #2a2f46;
+    border-radius: 6px;
+}
+
+#cidrTable QScrollBar:vertical {
+    width: 12px;
+    margin: 8px 2px 8px 2px;
+}
+
+#cidrTable QScrollBar:horizontal {
+    height: 12px;
+    margin: 2px 8px 2px 8px;
+}
+
+#cidrTable QScrollBar::handle:vertical {
+    background: #6f78b6;
+    min-height: 24px;
+    border-radius: 6px;
+}
+
+#cidrTable QScrollBar::handle:vertical:hover {
+    background: #8892d2;
+}
+
+#cidrTable QScrollBar::handle:horizontal {
+    background: #6f78b6;
+    min-width: 24px;
+    border-radius: 6px;
+}
+
+#cidrTable QScrollBar::handle:horizontal:hover {
+    background: #8892d2;
+}
+
+#cidrTable QScrollBar::add-line, #cidrTable QScrollBar::sub-line, #cidrTable QScrollBar::add-page, #cidrTable QScrollBar::sub-page {
+    background: transparent;
+    border: none;
+}

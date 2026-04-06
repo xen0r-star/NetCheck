@@ -1,0 +1,23 @@
+#emptyState, #resultCard {
+    background-color: #31364f;
+    border-radius: 12px;
+}
+
+#emptyState {
+    border: 1px solid #5a638c;
+}
+
+#resultCard {
+    border: 1px solid #545d84;
+}
+
+#emptyStateText {
+    color: #d4daef;
+    font-size: 13px;
+}
+
+#resultIp {
+    color: #f1f4ff;
+    font-size: 14px;
+    font-weight: 600;
+}
