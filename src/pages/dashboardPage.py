@@ -4,6 +4,8 @@ from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QButtonGroup, QFrame, QHBoxLayout, QLabel, QPushButton, QStackedWidget, QVBoxLayout, QWidget
 
+from services.database import Database
+
 from .views import (
     CidrTablePage,
     GetIpClassMaskPage,
@@ -19,12 +21,24 @@ from .views import (
 class DashboardWindow(QWidget):
     logout_requested = Signal()
 
-    def __init__(self):
+    def __init__(self, user_info=None):
         super().__init__()
+
+        db = Database()
+        session_user = user_info if user_info is not None else db.getUserInfo()
+        username = session_user["username"] if session_user else "Utilisateur"
+        role = session_user["role"] if session_user else "ROLE INCONNU"
 
         self.setObjectName("dashboardWindow")
         self.setWindowTitle("NetCheck - Dashboard")
         self.setFixedSize(1150, 650)
+        self.setWindowFlags(
+            Qt.Window |
+            Qt.CustomizeWindowHint |
+            Qt.WindowTitleHint |
+            Qt.WindowMinimizeButtonHint |
+            Qt.WindowCloseButtonHint
+        )
 
         # --- Structure principale ---
         root = QHBoxLayout(self)
@@ -70,16 +84,15 @@ class DashboardWindow(QWidget):
 
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         icons_dir = os.path.join(base_dir, "assets", "icons")
-        user_page = UserProfilePage()
+        user_page = UserProfilePage(user_info=session_user)
         user_page.logout_requested.connect(self.request_logout)
 
         pages = [
-            ("Validation IP", "Vérifie si une adresse IPv4 est valide", QIcon(os.path.join(icons_dir, "ip.svg")), IsIpPage()),
-            ("Masque Classful", "Vérifie si un masque contient uniquement des 255 et des 0", QIcon(os.path.join(icons_dir, "mask.svg")), IsClassFullPage()),
-            ("Classe IP", "Détermine la classe de l'adresse IPv4", QIcon(os.path.join(icons_dir, "class.svg")), GetIpClassPage()),
-            ("Masque Par Classe", "Retourne le masque par défaut selon la classe IP", QIcon(os.path.join(icons_dir, "mask.svg")), GetIpClassMaskPage()),
-            ("Calcul Sous-Reseau", "Calcule l'adresse réseau à partir de l'IP et du masque", QIcon(os.path.join(icons_dir, "subnet.svg")), GetSubnetPage()),
             ("Table CIDR", "Affiche les correspondances CIDR, binaire et décimal", QIcon(os.path.join(icons_dir, "cidr.svg")), CidrTablePage()),
+            ("Validation IP", "Vérifie si une adresse IPv4 est valide", QIcon(os.path.join(icons_dir, "ip.svg")), IsIpPage()),
+            ("Classe IP", "Détermine la classe de l'adresse IPv4", QIcon(os.path.join(icons_dir, "class.svg")), GetIpClassPage()),
+            ("Masque de classe", "Retourne le masque par défaut selon la classe IP", QIcon(os.path.join(icons_dir, "mask.svg")), GetIpClassMaskPage()),
+            ("Calcul Sous-Réseau", "Calcule l'adresse réseau à partir de l'IP et du masque", QIcon(os.path.join(icons_dir, "subnet.svg")), GetSubnetPage()),
         ]
 
         self.button_group = QButtonGroup(self)
@@ -111,10 +124,10 @@ class DashboardWindow(QWidget):
         user_layout.setContentsMargins(12, 10, 12, 10)
         user_layout.setSpacing(2)
 
-        user_name = QLabel("Admin")
+        user_name = QLabel(username)
         user_name.setObjectName("navUserName")
 
-        user_role = QLabel("Martin Alex")
+        user_role = QLabel(role)
         user_role.setObjectName("navUserRole")
 
         user_layout.addWidget(user_name)

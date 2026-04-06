@@ -1,0 +1,19 @@
+#logoutActionButton {
+    background-color: #e45a7b;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    min-height: 40px;
+    min-width: 146px;
+    padding: 8px 14px;
+}
+
+#logoutActionButton:hover {
+    background-color: #f06c8b;
+}
+
+#logoutActionButton:pressed {
+    background-color: #c84a68;
+}

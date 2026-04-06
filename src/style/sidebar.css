@@ -1,0 +1,57 @@
+#navFrame {
+    background-color: #141625;
+    border-right: 1px solid #2d2f43;
+}
+
+#sidebarBrand {
+    font-size: 30px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 2px;
+}
+
+#sidebarSubtitle {
+    color: #8f92ab;
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+#navButton {
+    background-color: #1e2234;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: #a1a8c5;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    padding: 6px 12px;
+    min-height: 36px;
+}
+
+#navButton:hover {
+    background-color: #2a2e45;
+    color: #f1f4ff;
+}
+
+#navButton:checked {
+    background-color: #7f5eff;
+    border: 1px solid #8b71ff;
+    color: white;
+}
+
+#navUserCard {
+    background-color: #22263a;
+    border: 1px solid #333955;
+    border-radius: 12px;
+}
+
+#navUserName {
+    color: #f8fafc;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#navUserRole {
+    color: #a5acc8;
+    font-size: 13px;
+}

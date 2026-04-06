@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:15
+    container_name: NetCheck-DB
+    restart: always
+    environment:
+      POSTGRES_USER: adminDB
+      POSTGRES_PASSWORD: apoR2a1jVupeIaHCqco2T2kTGfdYikpW
+      POSTGRES_DB: NetCheck-DB
+
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - NetChecks_Database:/var/lib/postgresql/data
+
+volumes:
+  NetChecks_Database:

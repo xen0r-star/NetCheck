@@ -1,0 +1,21 @@
+#badgeValid {
+    background-color: #205f3f;
+    color: #dcfce7;
+}
+
+#badgeInvalid {
+    background-color: #7c2d3f;
+    color: #ffe4ec;
+}
+
+#badgeWarn {
+    background-color: #7a521e;
+    color: #ffedd5;
+}
+
+#badgeNeutral, #badgeValid, #badgeInvalid, #badgeWarn {
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: bold;
+}

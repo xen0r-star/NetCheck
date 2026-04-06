@@ -7,15 +7,26 @@ from pages.loginPage import LoginWindow
 
 
 def loadStyleSheet():
-    css_path = os.path.join(os.path.dirname(__file__), "./style/style.css")
+    cssFile = [
+        "badges.css", "buttons.css", 
+        "content.css", "dashboard.css", 
+        "global.css", "login.css", 
+        "results.css", "sidebar.css", 
+        "table.css", "tools.css"
+    ]
+    full_stylesheet = ""
 
-    try:
-        with open(css_path, "r") as f:
-            return f.read()
+    for css in cssFile:
+        css_path = os.path.join(os.path.dirname(__file__), "style", css)
+
+        try:
+            with open(css_path, "r") as f:
+                full_stylesheet += f.read() + "\n"
+            
+        except FileNotFoundError:
+            print(f"Erreur : Le fichier {css_path} est introuvable.")
         
-    except FileNotFoundError:
-        print(f"Erreur : Le fichier {css_path} est introuvable.")
-        return ""
+    return full_stylesheet
     
 
 
