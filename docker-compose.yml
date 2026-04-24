@@ -4,7 +4,7 @@ services:
     container_name: NetCheck-DB
     restart: always
     environment:
-      POSTGRES_USER: adminDB
+      POSTGRES_USER: BVqjS1QGQjRI
       POSTGRES_PASSWORD: apoR2a1jVupeIaHCqco2T2kTGfdYikpW
       POSTGRES_DB: NetCheck-DB
 

@@ -2,7 +2,7 @@ import sys
 import os
 from PySide6.QtWidgets import QApplication
 
-from pages.loginPage import LoginWindow
+from src.pages.loginPage import LoginWindow
 
 
 
@@ -17,7 +17,7 @@ def loadStyleSheet():
     full_stylesheet = ""
 
     for css in cssFile:
-        css_path = os.path.join(os.path.dirname(__file__), "style", css)
+        css_path = os.path.join(os.path.dirname(__file__), "src", "style", css)
 
         try:
             with open(css_path, "r") as f:
