@@ -5,7 +5,7 @@ from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QToolButton, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFrame
 
 from .dashboardPage import DashboardWindow
-from services.database import Database
+from ..services.database import Database
 
 
 

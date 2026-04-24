@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QFrame, QHeaderView, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
-from utils import genererTableauCIDR
+from ...utils import genererTableauCIDR
 
 
 

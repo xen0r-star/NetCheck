@@ -1,23 +1,26 @@
+import os
+
 import bcrypt
 import psycopg2
 from psycopg2 import Error
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 class Database:
     def __init__(self):
-        self.host = "127.0.0.1"
-        self.database = "NetCheck-DB"
-        self.user = "adminDB"
-        self.password = "apoR2a1jVupeIaHCqco2T2kTGfdYikpW"
-        self.port = "5432"
+        self.host = os.getenv("DB_HOST")
+        self.database = os.getenv("DB_NAME")
+        self.user = os.getenv("DB_USER")
+        self.password = os.getenv("DB_PASS")
+        self.port = os.getenv("DB_PORT")
 
         self.conn = None
-
         self.userId = None
         self.userName = None
         self.userRole = None
         self.last_error = ""
-
 
     def connection(self):
         if self.conn is not None:
@@ -32,9 +35,7 @@ class Database:
                 port=self.port
             )
             self.last_error = ""
-
             return self.conn
-
         except Exception:
             self.last_error = "Erreur de connexion a la base de donnees"
             self.conn = None
