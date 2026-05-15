@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from ...utils import ClassMask, getIPClass
+from ...utils import ClassMask, getIPClass, isPrivateIp, isReservedIp
 
 
 
@@ -25,7 +25,7 @@ class GetIpClassPage(QWidget):
         row.setSpacing(10)
 
         self.ip_input = QLineEdit()
-        self.ip_input.setPlaceholderText("Ex: 10.0.0.1")
+        self.ip_input.setPlaceholderText("IPv4")
         self.ip_input.setObjectName("primaryInput")
         self.ip_input.setFixedHeight(46)
         self.ip_input.returnPressed.connect(self.run_check)
@@ -94,7 +94,15 @@ class GetIpClassPage(QWidget):
             return
 
         class_name = ip_class.name.replace("CLASS_", "Classe ")
-        self.result.setText(class_name)
+        details = [class_name]
+
+        if isReservedIp(ip):
+            details.append("Adresse réservée")
+
+        if isPrivateIp(ip):
+            details.append("Adresse privée")
+
+        self.result.setText("\n".join(details))
         self.result.setStyleSheet("color: #22c55e;")
         self.status_badge.setText(class_name.upper())
         self.status_badge.setObjectName("badgeValid")

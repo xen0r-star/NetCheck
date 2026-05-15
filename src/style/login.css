@@ -6,6 +6,10 @@
     border-left: 1px solid #334155;
 }
 
+#loginForm, #resetForm {
+    background: transparent;
+}
+
 #mainTitle {
     font-size: 24px;
     font-weight: bold;
