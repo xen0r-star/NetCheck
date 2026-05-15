@@ -25,7 +25,7 @@ class IsIpPage(QWidget):
         form_row.setSpacing(10)
 
         self.ip_input = QLineEdit()
-        self.ip_input.setPlaceholderText("Ex: 192.168.1.10")
+        self.ip_input.setPlaceholderText("IPv4")
         self.ip_input.setObjectName("primaryInput")
         self.ip_input.setFixedHeight(48)
         self.ip_input.returnPressed.connect(self.run_check)

@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from ...utils import ClassMask, getIPClassMask
+from ...utils import ClassMask, getIPClass, getIPClassMask
 
 
 
@@ -25,7 +25,7 @@ class GetIpClassMaskPage(QWidget):
         row.setSpacing(10)
 
         self.ip_input = QLineEdit()
-        self.ip_input.setPlaceholderText("Ex: 172.16.0.10")
+        self.ip_input.setPlaceholderText("IPv4")
         self.ip_input.setObjectName("primaryInput")
         self.ip_input.setFixedHeight(46)
         self.ip_input.returnPressed.connect(self.run_check)
@@ -79,6 +79,7 @@ class GetIpClassMaskPage(QWidget):
     def run_check(self):
         # --- Execution du calcul de masque ---
         ip = self.ip_input.text().strip()
+        ip_class = getIPClass(ip)
         mask = getIPClassMask(ip)
 
         self.empty_state.setVisible(False)
@@ -93,9 +94,10 @@ class GetIpClassMaskPage(QWidget):
             self.status_badge.style().polish(self.status_badge)
             return
 
-        self.result.setText(f"Masque: {mask}")
+        class_name = ip_class.name.replace("CLASS_", "Classe ")
+        self.result.setText(f"{class_name}\nMasque de classe: {mask}")
         self.result.setStyleSheet("color: #22c55e;")
-        self.status_badge.setText("OK")
+        self.status_badge.setText(ip_class.name.replace("CLASS_", "CLASSE "))
         self.status_badge.setObjectName("badgeValid")
         self.status_badge.style().unpolish(self.status_badge)
         self.status_badge.style().polish(self.status_badge)

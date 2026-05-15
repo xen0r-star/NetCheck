@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 from ...services.database import Database
 
@@ -16,6 +16,7 @@ class UserProfilePage(QWidget):
         role = user_info["role"] if user_info else "ROLE INCONNU"
         self.current_username = username
         self.is_admin = str(role).lower() == "admin"
+        self.last_login = self.db.getLastLogin(username)
 
         # --- Structure principale ---
         layout = QVBoxLayout(self)
@@ -48,6 +49,14 @@ class UserProfilePage(QWidget):
         username_label = QLabel(username)
         username_label.setObjectName("resultIp")
 
+        last_login_label = QLabel(f"Derniere connexion: {self._format_timestamp(self.last_login)}")
+        last_login_label.setObjectName("statusMessage")
+
+        user_info_col = QVBoxLayout()
+        user_info_col.setSpacing(4)
+        user_info_col.addWidget(username_label)
+        user_info_col.addWidget(last_login_label)
+
         role_badge = QLabel(str(role).upper())
         role_badge.setObjectName("badgeValid")
         role_badge.setFixedWidth(84)
@@ -60,7 +69,7 @@ class UserProfilePage(QWidget):
         logout_button.setFixedHeight(32)
         logout_button.clicked.connect(self.logout_requested.emit)
 
-        profile_layout.addWidget(username_label, 0, Qt.AlignLeft)
+        profile_layout.addLayout(user_info_col, 0)
         profile_layout.addWidget(role_badge, 0, Qt.AlignLeft)
         profile_layout.addStretch(1)
         profile_layout.addWidget(logout_button, 0, Qt.AlignRight)
@@ -80,8 +89,10 @@ class UserProfilePage(QWidget):
 
             self.user_table = QTableWidget()
             self.user_table.setObjectName("cidrTable")
-            self.user_table.setColumnCount(3)
-            self.user_table.setHorizontalHeaderLabels(["ID", "Nom", "Role"])
+            self.user_table.setColumnCount(7)
+            self.user_table.setHorizontalHeaderLabels(
+                ["ID", "Nom", "Role", "Temp", "Echecs", "Bloque jusqu", "Derniere connexion"]
+            )
             self.user_table.verticalHeader().setVisible(False)
             self.user_table.setSelectionBehavior(QTableWidget.SelectRows)
             self.user_table.setSelectionMode(QTableWidget.SingleSelection)
@@ -106,99 +117,94 @@ class UserProfilePage(QWidget):
             self.role_input.addItems(["member", "admin"])
             self.role_input.setMinimumHeight(40)
 
-            actions_row = QHBoxLayout()
-            actions_row.setSpacing(8)
-
             refresh_button = QPushButton("Actualiser")
             refresh_button.setObjectName("actionButton")
             refresh_button.setCursor(Qt.PointingHandCursor)
             refresh_button.clicked.connect(self.refresh_users)
+            refresh_button.setFixedSize(140, 44)
 
             add_button = QPushButton("Ajouter")
             add_button.setObjectName("actionButton")
             add_button.setCursor(Qt.PointingHandCursor)
             add_button.clicked.connect(self.add_user)
+            add_button.setFixedSize(140, 44)
 
             update_button = QPushButton("Modifier")
             update_button.setObjectName("actionButton")
             update_button.setCursor(Qt.PointingHandCursor)
             update_button.clicked.connect(self.update_user)
+            update_button.setFixedSize(140, 44)
 
             delete_button = QPushButton("Supprimer")
-            delete_button.setObjectName("logoutActionButton")
+            delete_button.setObjectName("dangerButton")
             delete_button.setCursor(Qt.PointingHandCursor)
             delete_button.clicked.connect(self.delete_user)
-
-            actions_row.addWidget(refresh_button)
-            actions_row.addWidget(add_button)
-            actions_row.addWidget(update_button)
-            actions_row.addWidget(delete_button)
+            delete_button.setFixedSize(140, 44)
 
             self.admin_message = QLabel("")
             self.admin_message.setObjectName("statusMessage")
 
+            admin_body = QHBoxLayout()
+            admin_body.setSpacing(16)
+
+            form_card = QFrame()
+            form_card.setObjectName("toolCard")
+            form_layout = QVBoxLayout(form_card)
+            form_layout.setContentsMargins(16, 14, 16, 14)
+            form_layout.setSpacing(10)
+
+            form_layout.addWidget(self.username_input)
+            form_layout.addWidget(self.password_input)
+            form_layout.addWidget(self.role_input)
+
+            form_actions = QVBoxLayout()
+            form_actions.setSpacing(8)
+            form_actions.addWidget(refresh_button)
+            form_actions.addWidget(add_button)
+            form_actions.addWidget(update_button)
+            form_actions.addWidget(delete_button)
+            form_actions.addStretch(1)
+
+            form_layout.addLayout(form_actions)
+
+            admin_body.addWidget(self.user_table, 2)
+            admin_body.addWidget(form_card, 1)
+
             admin_layout.addWidget(admin_title)
-            admin_layout.addWidget(self.user_table, 1)
-            admin_layout.addWidget(self.username_input)
-            admin_layout.addWidget(self.password_input)
-            admin_layout.addWidget(self.role_input)
-            admin_layout.addLayout(actions_row)
+            admin_layout.addLayout(admin_body, 1)
             admin_layout.addWidget(self.admin_message)
 
             card_layout.addWidget(admin_card)
 
-            self.log_box = self.build_log_panel(card_layout)
-            self.append_log("Panel admin initialise")
             self.refresh_users()
-
-        else:
-            self.log_box = self.build_log_panel(card_layout)
-            self.append_log("Session utilisateur ouverte")
 
         scroll_layout.addWidget(card)
         scroll_layout.addStretch(1)
         scroll.setWidget(scroll_content)
         layout.addWidget(scroll)
 
-
-    def build_log_panel(self, parent_layout):
-        log_card = QFrame()
-        log_card.setObjectName("resultCard")
-        log_layout = QVBoxLayout(log_card)
-        log_layout.setContentsMargins(16, 14, 16, 14)
-        log_layout.setSpacing(8)
-
-        log_title = QLabel("Logs")
-        log_title.setObjectName("resultIp")
-
-        log_box = QPlainTextEdit()
-        log_box.setObjectName("primaryInput")
-        log_box.setReadOnly(True)
-        log_box.setMinimumHeight(110)
-        log_box.setPlaceholderText("Les evenements s affichent ici...")
-
-        log_layout.addWidget(log_title)
-        log_layout.addWidget(log_box)
-        parent_layout.addWidget(log_card)
-        return log_box
-
-    def append_log(self, message):
-        self.log_box.appendPlainText(message)
+    def _format_timestamp(self, value):
+        if not value:
+            return "Jamais"
+        return value.strftime("%d/%m/%Y %H:%M")
 
     def set_admin_message(self, text, is_error=False):
         color = "#ff8da1" if is_error else "#a7f3d0"
         self.admin_message.setStyleSheet(f"color: {color};")
         self.admin_message.setText(text)
-        self.append_log(text)
 
     def refresh_users(self):
         users = self.db.listUsers()
         self.user_table.setRowCount(len(users))
 
-        for row_index, (user_id, username, role) in enumerate(users):
+        for row_index, (user_id, username, role, is_temporary, failed_attempts, locked_until, last_login) in enumerate(users):
             self.user_table.setItem(row_index, 0, QTableWidgetItem(str(user_id)))
             self.user_table.setItem(row_index, 1, QTableWidgetItem(username))
             self.user_table.setItem(row_index, 2, QTableWidgetItem(role))
+            self.user_table.setItem(row_index, 3, QTableWidgetItem("Oui" if is_temporary else "Non"))
+            self.user_table.setItem(row_index, 4, QTableWidgetItem(str(failed_attempts)))
+            self.user_table.setItem(row_index, 5, QTableWidgetItem(self._format_timestamp(locked_until)))
+            self.user_table.setItem(row_index, 6, QTableWidgetItem(self._format_timestamp(last_login)))
 
         self.user_table.resizeColumnsToContents()
 
@@ -224,7 +230,7 @@ class UserProfilePage(QWidget):
         if role_index >= 0:
             self.role_input.setCurrentIndex(role_index)
 
-        self.append_log(f"Utilisateur selectionne: {selected_username}")
+        self.set_admin_message(f"Utilisateur selectionne: {selected_username}")
 
     def add_user(self):
         username = self.username_input.text().strip()
@@ -235,7 +241,7 @@ class UserProfilePage(QWidget):
             self.set_admin_message("Nom d'utilisateur et mot de passe obligatoires.", True)
             return
 
-        if self.db.addUser(username, password, role):
+        if self.db.addUser(username, password, role, is_temporary=True):
             self.set_admin_message("Utilisateur ajoute avec succes.")
             self.password_input.clear()
             self.refresh_users()

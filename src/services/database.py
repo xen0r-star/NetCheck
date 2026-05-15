@@ -1,4 +1,6 @@
 import os
+import re
+from datetime import datetime, timedelta
 
 import bcrypt
 import psycopg2
@@ -21,6 +23,12 @@ class Database:
         self.userName = None
         self.userRole = None
         self.last_error = ""
+        self.password_reset_required = False
+
+        self.max_failed_attempts = 5
+        self.lockout_minutes = 15
+
+        self.password_min_length = 13
 
     def connection(self):
         if self.conn is not None:
@@ -60,7 +68,13 @@ class Database:
         if cursor is None:
             return []
 
-        cursor.execute("SELECT id, username, role FROM users ORDER BY id")
+        cursor.execute(
+            """
+            SELECT id, username, role, is_temporary, failed_attempts, locked_until, last_login
+            FROM users
+            ORDER BY id
+            """
+        )
         records = cursor.fetchall()
         cursor.close()
         self.last_error = ""
@@ -68,18 +82,25 @@ class Database:
         return records
 
 
-    def addUser(self, username, password, role):
+    def addUser(self, username, password, role, is_temporary=True):
         cursor = self._cursor()
         if cursor is None:
             return False
 
         try:
+            if not is_temporary and not self._is_password_strong(password):
+                self.last_error = "PASSWORD_WEAK"
+                return False
+
             salt = bcrypt.gensalt()
             hashPassword = bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
             cursor.execute(
-                "INSERT INTO users (username, hashpassword, role) VALUES (%s, %s, %s)",
-                (username, hashPassword, role)
+                """
+                INSERT INTO users (username, hashpassword, role, is_temporary, failed_attempts, locked_until, last_login)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """,
+                (username, hashPassword, role, is_temporary, 0, None, None)
             )
             self.connection().commit()
             return True
@@ -115,10 +136,24 @@ class Database:
             return False
 
         try:
+            if not self._is_password_strong(newPassword):
+                self.last_error = "PASSWORD_WEAK"
+                return False
+
             salt = bcrypt.gensalt()
             hashPassword = bcrypt.hashpw(newPassword.encode("utf-8"), salt).decode("utf-8")
 
-            cursor.execute("UPDATE users SET hashpassword = %s WHERE username = %s", (hashPassword, username))
+            cursor.execute(
+                """
+                UPDATE users
+                SET hashpassword = %s,
+                    is_temporary = %s,
+                    failed_attempts = %s,
+                    locked_until = %s
+                WHERE username = %s
+                """,
+                (hashPassword, False, 0, None, username)
+            )
             affected = cursor.rowcount
             self.connection().commit()
             return affected > 0
@@ -128,6 +163,10 @@ class Database:
             return False
         finally:
             cursor.close()
+
+
+    def setPasswordAndActivate(self, username, newPassword):
+        return self.setPassword(username, newPassword)
 
 
     def deleteUser(self, username):
@@ -154,22 +193,140 @@ class Database:
         if cursor is None:
             return False
 
-        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        self.password_reset_required = False
+
+        cursor.execute(
+            """
+            SELECT id, username, hashpassword, role, is_temporary, failed_attempts, locked_until, last_login
+            FROM users
+            WHERE username = %s
+            """,
+            (username,)
+        )
         record = cursor.fetchone()
         cursor.close()
 
         if record:
             hash_stocke = record[2]
+            is_temporary = bool(record[4])
+            failed_attempts = record[5] if record[5] is not None else 0
+            locked_until = record[6]
+
+            now = datetime.utcnow()
+            if locked_until and locked_until > now:
+                self.last_error = "ACCOUNT_LOCKED"
+                return False
 
             if bcrypt.checkpw(password.encode('utf-8'), hash_stocke.encode('utf-8')):
+                if is_temporary:
+                    self.last_error = "PASSWORD_RESET_REQUIRED"
+                    self.password_reset_required = True
+                    return False
+
+                self._reset_failed_attempts(username)
+                self._set_last_login(username)
                 self.userId = record[0]
                 self.userName = record[1]
                 self.userRole = record[3]
                 self.last_error = ""
                 return True
 
+            self._register_failed_attempt(username, failed_attempts)
             self.last_error = "Identifiants incorrects"
         return False
+
+
+    def _is_password_strong(self, password):
+        if not password or len(password) < self.password_min_length:
+            return False
+
+        if not re.search(r"[A-Z]", password):
+            return False
+
+        if not re.search(r"[a-z]", password):
+            return False
+
+        if not re.search(r"\d", password):
+            return False
+
+        if not re.search(r"[^A-Za-z0-9]", password):
+            return False
+
+        return True
+
+
+    def _register_failed_attempt(self, username, failed_attempts):
+        cursor = self._cursor()
+        if cursor is None:
+            return
+
+        try:
+            next_attempts = failed_attempts + 1
+            locked_until = None
+
+            if next_attempts >= self.max_failed_attempts:
+                locked_until = datetime.utcnow() + timedelta(minutes=self.lockout_minutes)
+
+            cursor.execute(
+                """
+                UPDATE users
+                SET failed_attempts = %s,
+                    locked_until = %s
+                WHERE username = %s
+                """,
+                (next_attempts, locked_until, username)
+            )
+            self.connection().commit()
+        except Error:
+            self.connection().rollback()
+        finally:
+            cursor.close()
+
+
+    def _reset_failed_attempts(self, username):
+        cursor = self._cursor()
+        if cursor is None:
+            return
+
+        try:
+            cursor.execute(
+                "UPDATE users SET failed_attempts = %s, locked_until = %s WHERE username = %s",
+                (0, None, username)
+            )
+            self.connection().commit()
+        except Error:
+            self.connection().rollback()
+        finally:
+            cursor.close()
+
+
+    def _set_last_login(self, username):
+        cursor = self._cursor()
+        if cursor is None:
+            return
+
+        try:
+            cursor.execute(
+                "UPDATE users SET last_login = %s WHERE username = %s",
+                (datetime.utcnow(), username)
+            )
+            self.connection().commit()
+        except Error:
+            self.connection().rollback()
+        finally:
+            cursor.close()
+
+
+    def getLastLogin(self, username):
+        cursor = self._cursor()
+        if cursor is None:
+            return None
+
+        cursor.execute("SELECT last_login FROM users WHERE username = %s", (username,))
+        record = cursor.fetchone()
+        cursor.close()
+
+        return record[0] if record else None
     
 
     def getUserInfo(self):

@@ -11,8 +11,8 @@ from .views import (
     GetIpClassMaskPage,
     GetIpClassPage,
     GetSubnetPage,
-    IsClassFullPage,
     IsIpPage,
+    SameNetworkPage,
     UserProfilePage
 )
 
@@ -88,11 +88,12 @@ class DashboardWindow(QWidget):
         user_page.logout_requested.connect(self.request_logout)
 
         pages = [
-            ("Table CIDR", "Affiche les correspondances CIDR, binaire et décimal", QIcon(os.path.join(icons_dir, "cidr.svg")), CidrTablePage()),
-            ("Validation IP", "Vérifie si une adresse IPv4 est valide", QIcon(os.path.join(icons_dir, "ip.svg")), IsIpPage()),
-            ("Classe IP", "Détermine la classe de l'adresse IPv4", QIcon(os.path.join(icons_dir, "class.svg")), GetIpClassPage()),
+            ("Table CIDR", "Affiche les masques de /8 à /30 en CIDR, binaire et décimal", QIcon(os.path.join(icons_dir, "cidr.svg")), CidrTablePage()),
+            ("Validation IP", "Vérifie si une adresse IPv4 a le bon format", QIcon(os.path.join(icons_dir, "ip.svg")), IsIpPage()),
+            ("Classe IP", "Détermine la classe et signale les IP privées ou réservées", QIcon(os.path.join(icons_dir, "class.svg")), GetIpClassPage()),
             ("Masque de classe", "Retourne le masque par défaut selon la classe IP", QIcon(os.path.join(icons_dir, "mask.svg")), GetIpClassMaskPage()),
-            ("Calcul Sous-Réseau", "Calcule l'adresse réseau à partir de l'IP et du masque", QIcon(os.path.join(icons_dir, "subnet.svg")), GetSubnetPage()),
+            ("Réseau classful", "Calcule l'adresse réseau avec une IP et un masque classful", QIcon(os.path.join(icons_dir, "subnet.svg")), GetSubnetPage()),
+            ("Meme reseau", "Verifie si deux IP sont dans le meme reseau", QIcon(os.path.join(icons_dir, "subnet.svg")), SameNetworkPage()),
         ]
 
         self.button_group = QButtonGroup(self)

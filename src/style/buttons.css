@@ -10,6 +10,26 @@
     padding: 8px 14px;
 }
 
+#dangerButton {
+    background-color: #e45a7b;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    min-height: 44px;
+    min-width: 140px;
+    padding: 8px 14px;
+}
+
+#dangerButton:hover {
+    background-color: #f06c8b;
+}
+
+#dangerButton:pressed {
+    background-color: #c84a68;
+}
+
 #logoutActionButton:hover {
     background-color: #f06c8b;
 }
