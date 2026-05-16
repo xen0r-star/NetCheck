@@ -119,7 +119,7 @@ class LoginWindow(QWidget):
 		reset_layout.setContentsMargins(0, 0, 0, 0)
 		reset_layout.setSpacing(0)
 
-		reset_title = QLabel("Definir votre mot de passe")
+		reset_title = QLabel("Définir votre mot de passe")
 		reset_title.setObjectName("mainTitle")
 		reset_title.setAlignment(Qt.AlignCenter)
 
@@ -155,6 +155,7 @@ class LoginWindow(QWidget):
 		self.message = QLabel("")
 		self.message.setObjectName("statusMessage")
 		self.message.setAlignment(Qt.AlignCenter)
+		self.message.setWordWrap(True)
 
 		right_layout.addWidget(self.login_form)
 		right_layout.addWidget(self.reset_form)
@@ -183,12 +184,12 @@ class LoginWindow(QWidget):
 			if db.password_reset_required:
 				self.pending_username = self.username.text().strip()
 				self.show_reset_form()
-				self.message.setText("Veuillez definir un mot de passe definitif.")
+				self.message.setText("Veuillez définir un mot de passe définitif.")
 				self.message.setStyleSheet("color: #FFB74D;")
 				return
 
 			if db.last_error == "ACCOUNT_LOCKED":
-				self.message.setText("Compte bloque temporairement. Reessayez plus tard.")
+				self.message.setText("Compte bloqué temporairement. Réessayez plus tard.")
 				self.message.setStyleSheet("color: #FF5252;")
 				return
 
@@ -249,7 +250,7 @@ class LoginWindow(QWidget):
 		db = Database()
 		if db.setPasswordAndActivate(self.pending_username, new_password):
 			username = self.pending_username
-			self.message.setText("Mot de passe mis a jour. Connectez-vous.")
+			self.message.setText("Mot de passe mis à jour. Connectez-vous.")
 			self.message.setStyleSheet("color: #a7f3d0;")
 			self.show_login_form()
 			self.username.setText(username)
@@ -257,10 +258,10 @@ class LoginWindow(QWidget):
 
 		if db.last_error == "PASSWORD_WEAK":
 			self.message.setText(
-				"Mot de passe trop simple. 13 caracteres minimum avec majuscule, minuscule, chiffre et caractere special."
+				"Mot de passe trop simple. 13 caractères minimum avec majuscule, minuscule, chiffre et caractère spécial."
 			)
 			self.message.setStyleSheet("color: #FF5252;")
 			return
 
-		self.message.setText(db.last_error if db.last_error else "Erreur de mise a jour")
+		self.message.setText(db.last_error if db.last_error else "Erreur de mise à jour")
 		self.message.setStyleSheet("color: #FF5252;")

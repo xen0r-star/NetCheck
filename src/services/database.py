@@ -269,7 +269,7 @@ class Database:
                 self.last_error = "ACCOUNT_INACTIVE"
                 return False
 
-            now = datetime.utcnow()
+            now = datetime.now()
             if locked_until and locked_until > now:
                 self.last_error = "ACCOUNT_LOCKED"
                 return False
@@ -322,7 +322,7 @@ class Database:
             locked_until = None
 
             if next_attempts >= self.max_failed_attempts:
-                locked_until = datetime.utcnow() + timedelta(minutes=self.lockout_minutes)
+                locked_until = datetime.now() + timedelta(minutes=self.lockout_minutes)
 
             cursor.execute(
                 """
@@ -365,7 +365,7 @@ class Database:
         try:
             cursor.execute(
                 "UPDATE users SET last_login = %s WHERE username = %s",
-                (datetime.utcnow(), username)
+                (datetime.now(), username)
             )
             self.connection().commit()
         except Error:

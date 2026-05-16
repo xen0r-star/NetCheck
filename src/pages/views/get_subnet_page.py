@@ -63,7 +63,7 @@ class GetSubnetPage(QWidget):
         result_layout.setContentsMargins(16, 12, 16, 12)
         result_layout.setSpacing(8)
 
-        self.status_badge = QLabel("SOUS-RESEAU")
+        self.status_badge = QLabel("SOUS-RÉSEAU")
         self.status_badge.setObjectName("badgeNeutral")
         self.status_badge.setAlignment(Qt.AlignCenter)
         self.status_badge.setFixedWidth(140)
@@ -120,7 +120,7 @@ class GetSubnetPage(QWidget):
 
         self.result.setText(f"Réseau: {subnet}\nSous-réseau: {subnet}")
         self.result.setStyleSheet("color: #22c55e;")
-        self.status_badge.setText("RESEAU")
+        self.status_badge.setText("RÉSEAU")
         self.status_badge.setObjectName("badgeValid")
         self.status_badge.style().unpolish(self.status_badge)
         self.status_badge.style().polish(self.status_badge)

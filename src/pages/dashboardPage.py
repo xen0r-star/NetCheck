@@ -27,10 +27,10 @@ class DashboardWindow(QWidget):
         db = Database()
         session_user = user_info if user_info is not None else db.getUserInfo()
         username = session_user["username"] if session_user else "Utilisateur"
-        role = session_user["role"] if session_user else "ROLE INCONNU"
+        role = session_user["role"] if session_user else "RÔLE INCONNU"
 
         self.setObjectName("dashboardWindow")
-        self.setWindowTitle("NetCheck - Dashboard")
+        self.setWindowTitle("NetCheck - Tableau de bord")
         self.setFixedSize(1150, 650)
         self.setWindowFlags(
             Qt.Window |
@@ -93,7 +93,7 @@ class DashboardWindow(QWidget):
             ("Classe IP", "Détermine la classe et signale les IP privées ou réservées", QIcon(os.path.join(icons_dir, "class.svg")), GetIpClassPage()),
             ("Masque de classe", "Retourne le masque par défaut selon la classe IP", QIcon(os.path.join(icons_dir, "mask.svg")), GetIpClassMaskPage()),
             ("Réseau classful", "Calcule l'adresse réseau avec une IP et un masque classful", QIcon(os.path.join(icons_dir, "subnet.svg")), GetSubnetPage()),
-            ("Meme reseau", "Verifie si deux IP sont dans le meme reseau", QIcon(os.path.join(icons_dir, "subnet.svg")), SameNetworkPage()),
+            ("Même réseau", "Vérifie si deux IP sont dans le même réseau", QIcon(os.path.join(icons_dir, "subnet.svg")), SameNetworkPage()),
         ]
 
         self.button_group = QButtonGroup(self)
@@ -178,7 +178,7 @@ class DashboardWindow(QWidget):
 
 
     def open_profile_page(self, _event):
-        self.switch_page(self.profile_page_index, "Profil Utilisateur")
+        self.switch_page(self.profile_page_index, "Profil utilisateur")
         for button in self.button_group.buttons():
             button.setChecked(False)
 
