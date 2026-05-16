@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from ...utils import areIpsInSameNetwork, getNetworkAddress, isIp, isSubnetMask, parse_mask
+from ...services.logic import areIpsInSameNetwork, getNetworkAddress, isIp, isSubnetMask, parse_mask
 
 
 
