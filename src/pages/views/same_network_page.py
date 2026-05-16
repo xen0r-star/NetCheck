@@ -42,7 +42,7 @@ class SameNetworkPage(QWidget):
         self.mask2_input.setFixedHeight(46)
         self.mask2_input.returnPressed.connect(self.run_check)
 
-        run_button = QPushButton("Verifier")
+        run_button = QPushButton("Vérifier")
         run_button.setObjectName("actionButton")
         run_button.setFixedSize(120, 46)
         run_button.setCursor(Qt.PointingHandCursor)
@@ -132,21 +132,21 @@ class SameNetworkPage(QWidget):
         direction_2 = getNetworkAddress(ip2, normalized_mask2) == getNetworkAddress(ip1, normalized_mask2)
 
         if same_network:
-            self.result.setText("Meme reseau dans les deux sens")
+            self.result.setText("Même réseau dans les deux sens")
             self.result.setStyleSheet("color: #22c55e;")
             self.status_badge.setText("OUI")
             self.status_badge.setObjectName("badgeValid")
         elif direction_1 or direction_2:
             details = []
             if direction_1:
-                details.append("IP1 dans reseau IP2: OUI")
+                details.append("IP1 dans réseau IP2: OUI")
             else:
-                details.append("IP1 dans reseau IP2: NON")
+                details.append("IP1 dans réseau IP2: NON")
 
             if direction_2:
-                details.append("IP2 dans reseau IP1: OUI")
+                details.append("IP2 dans réseau IP1: OUI")
             else:
-                details.append("IP2 dans reseau IP1: NON")
+                details.append("IP2 dans réseau IP1: NON")
 
             self.result.setText("\n".join(details))
             self.result.setStyleSheet("color: #f59e0b;")

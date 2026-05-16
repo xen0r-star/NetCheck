@@ -77,7 +77,7 @@ class CidrTablePage(QWidget):
 
         with open(path, "w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file, delimiter=";")
-            writer.writerow(["CIDR", "Binaire", "Decimal"])
+            writer.writerow(["CIDR", "Binaire", "Décimal"])
 
             for row in range(self.table.rowCount()):
                 writer.writerow([

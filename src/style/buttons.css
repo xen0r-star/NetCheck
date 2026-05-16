@@ -5,9 +5,7 @@
     color: white;
     font-size: 13px;
     font-weight: bold;
-    min-height: 40px;
-    min-width: 146px;
-    padding: 8px 14px;
+    min-height: 44px;
 }
 
 #dangerButton {
@@ -18,8 +16,6 @@
     font-size: 13px;
     font-weight: bold;
     min-height: 44px;
-    min-width: 140px;
-    padding: 8px 14px;
 }
 
 #dangerButton:hover {
