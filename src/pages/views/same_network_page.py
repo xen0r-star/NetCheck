@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from ...utils import areIpsInSameNetwork, isIp, isSubnetMask, parse_mask
+from ...utils import areIpsInSameNetwork, getNetworkAddress, isIp, isSubnetMask, parse_mask
 
 
 
@@ -128,14 +128,32 @@ class SameNetworkPage(QWidget):
             return
 
         same_network = areIpsInSameNetwork(ip1, normalized_mask1, ip2, normalized_mask2)
+        direction_1 = getNetworkAddress(ip1, normalized_mask1) == getNetworkAddress(ip2, normalized_mask1)
+        direction_2 = getNetworkAddress(ip2, normalized_mask2) == getNetworkAddress(ip1, normalized_mask2)
 
         if same_network:
-            self.result.setText("Les deux IP sont dans le meme reseau")
+            self.result.setText("Meme reseau dans les deux sens")
             self.result.setStyleSheet("color: #22c55e;")
             self.status_badge.setText("OUI")
             self.status_badge.setObjectName("badgeValid")
+        elif direction_1 or direction_2:
+            details = []
+            if direction_1:
+                details.append("IP1 dans reseau IP2: OUI")
+            else:
+                details.append("IP1 dans reseau IP2: NON")
+
+            if direction_2:
+                details.append("IP2 dans reseau IP1: OUI")
+            else:
+                details.append("IP2 dans reseau IP1: NON")
+
+            self.result.setText("\n".join(details))
+            self.result.setStyleSheet("color: #f59e0b;")
+            self.status_badge.setText("PARTIEL")
+            self.status_badge.setObjectName("badgeWarn")
         else:
-            self.result.setText("Les deux IP ne sont pas dans le meme reseau")
+            self.result.setText("Aucun des deux sens ne correspond")
             self.result.setStyleSheet("color: #ef4444;")
             self.status_badge.setText("NON")
             self.status_badge.setObjectName("badgeInvalid")

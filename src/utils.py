@@ -115,12 +115,22 @@ def isReservedIp(ip):
     if not isIp(ip):
         return False
 
+    if ip == "0.0.0.0":
+        return True
+
+    if ip == "255.255.255.255":
+        return True
+
     first = int(ip.split(".")[0])
+    second = int(ip.split(".")[1])
 
     if first == 0:
         return True
 
     if first == 127:
+        return True
+
+    if first == 169 and second == 254:
         return True
 
     if 224 <= first <= 239:

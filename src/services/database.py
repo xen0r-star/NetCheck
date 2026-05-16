@@ -70,7 +70,7 @@ class Database:
 
         cursor.execute(
             """
-            SELECT id, username, role, is_temporary, failed_attempts, locked_until, last_login
+            SELECT id, username, role, is_temporary, is_active, failed_attempts, locked_until, last_login
             FROM users
             ORDER BY id
             """
@@ -97,10 +97,10 @@ class Database:
 
             cursor.execute(
                 """
-                INSERT INTO users (username, hashpassword, role, is_temporary, failed_attempts, locked_until, last_login)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO users (username, hashpassword, role, is_temporary, is_active, failed_attempts, locked_until, last_login)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
-                (username, hashPassword, role, is_temporary, 0, None, None)
+                (username, hashPassword, role, is_temporary, True, 0, None, None)
             )
             self.connection().commit()
             return True
@@ -169,13 +169,65 @@ class Database:
         return self.setPassword(username, newPassword)
 
 
+    def setTemporaryPassword(self, username, newPassword):
+        cursor = self._cursor()
+        if cursor is None:
+            return False
+
+        try:
+            salt = bcrypt.gensalt()
+            hashPassword = bcrypt.hashpw(newPassword.encode("utf-8"), salt).decode("utf-8")
+
+            cursor.execute(
+                """
+                UPDATE users
+                SET hashpassword = %s,
+                    is_temporary = %s,
+                    failed_attempts = %s,
+                    locked_until = %s
+                WHERE username = %s
+                """,
+                (hashPassword, True, 0, None, username)
+            )
+            affected = cursor.rowcount
+            self.connection().commit()
+            return affected > 0
+        except Error:
+            self.last_error = "Operation SQL impossible"
+            self.connection().rollback()
+            return False
+        finally:
+            cursor.close()
+
+
+    def updateLockout(self, username, locked_until):
+        cursor = self._cursor()
+        if cursor is None:
+            return False
+
+        try:
+            cursor.execute(
+                "UPDATE users SET locked_until = %s WHERE username = %s",
+                (locked_until, username)
+            )
+            affected = cursor.rowcount
+            self.connection().commit()
+            return affected > 0
+        except Error:
+            self.last_error = "Operation SQL impossible"
+            self.connection().rollback()
+            return False
+        finally:
+            cursor.close()
+
+
     def deleteUser(self, username):
         cursor = self._cursor()
         if cursor is None:
             return False
 
         try:
-            cursor.execute("DELETE FROM users WHERE username = %s", (username,))
+            cursor.execute("UPDATE users SET is_active = %s WHERE username = %s", (False, username))
             affected = cursor.rowcount
             self.connection().commit()
             return affected > 0
@@ -197,7 +249,7 @@ class Database:
 
         cursor.execute(
             """
-            SELECT id, username, hashpassword, role, is_temporary, failed_attempts, locked_until, last_login
+            SELECT id, username, hashpassword, role, is_temporary, is_active, failed_attempts, locked_until, last_login
             FROM users
             WHERE username = %s
             """,
@@ -209,8 +261,13 @@ class Database:
         if record:
             hash_stocke = record[2]
             is_temporary = bool(record[4])
-            failed_attempts = record[5] if record[5] is not None else 0
-            locked_until = record[6]
+            is_active = bool(record[5])
+            failed_attempts = record[6] if record[6] is not None else 0
+            locked_until = record[7]
+
+            if not is_active:
+                self.last_error = "ACCOUNT_INACTIVE"
+                return False
 
             now = datetime.utcnow()
             if locked_until and locked_until > now:

@@ -85,6 +85,24 @@ class GetIpClassMaskPage(QWidget):
         self.empty_state.setVisible(False)
         self.result_card.setVisible(True)
 
+        if ip_class == ClassMask.CLASS_D:
+            self.result.setText("Classe D — pas de masque de classe")
+            self.result.setStyleSheet("color: #f59e0b;")
+            self.status_badge.setText("CLASSE D")
+            self.status_badge.setObjectName("badgeWarn")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            return
+
+        if ip_class == ClassMask.CLASS_E:
+            self.result.setText("Classe E — pas de masque de classe")
+            self.result.setStyleSheet("color: #f59e0b;")
+            self.status_badge.setText("CLASSE E")
+            self.status_badge.setObjectName("badgeWarn")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            return
+
         if mask == ClassMask.ERROR.value:
             self.result.setText("Adresse IP invalide")
             self.result.setStyleSheet("color: #ef4444;")

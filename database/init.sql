@@ -4,6 +4,7 @@ CREATE TABLE public.users (
     hashpassword TEXT NOT NULL,
     role VARCHAR(20) DEFAULT 'user' NOT NULL CHECK (role IN ('user', 'admin')),
     is_temporary BOOLEAN DEFAULT false NOT NULL,
+    is_active BOOLEAN DEFAULT true NOT NULL,
     failed_attempts INTEGER DEFAULT 0 NOT NULL,
     locked_until TIMESTAMP WITHOUT TIME ZONE,
     last_login TIMESTAMP WITHOUT TIME ZONE
