@@ -9,6 +9,39 @@ class ClassMask(Enum):
     ERROR = "error"
 
 
+def _str_to_int(text):
+    if not isinstance(text, str) or text == "":
+        return None
+
+    value = 0
+    for char in text:
+        if char < "0" or char > "9":
+            return None
+        value = value * 10 + (ord(char) - ord("0"))
+
+    return value
+
+
+def _int_to_bin8(value):
+    bits = []
+    for shift in range(7, -1, -1):
+        bits.append("1" if (value >> shift) & 1 else "0")
+    return "".join(bits)
+
+
+def _bin_str_to_int(text):
+    if not isinstance(text, str) or text == "":
+        return None
+
+    value = 0
+    for char in text:
+        if char not in ("0", "1"):
+            return None
+        value = (value << 1) | (1 if char == "1" else 0)
+
+    return value
+
+
 
 def isIp(ip):
     if not isinstance(ip, str):
@@ -22,8 +55,8 @@ def isIp(ip):
         if not part.isdigit():
             return False
 
-        value = int(part)
-        if value < 0 or value > 255:
+        value = _str_to_int(part)
+        if value is None or value < 0 or value > 255:
             return False
 
     return True
@@ -36,13 +69,16 @@ def isSubnetMask(mask):
 
     bits = []
     for part in normalized.split("."):
-        bits.append(f"{int(part):08b}")
+        value = _str_to_int(part)
+        if value is None:
+            return False
+        bits.append(_int_to_bin8(value))
 
     return "01" not in "".join(bits)
 
 
 def _ip_to_int(ip):
-    parts = [int(part) for part in ip.split(".")]
+    parts = [_str_to_int(part) for part in ip.split(".")]
     return (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]
 
 
@@ -59,8 +95,8 @@ def parse_mask(mask):
         cleaned = cleaned[1:]
 
     if cleaned.isdigit():
-        cidr = int(cleaned)
-        if cidr < 0 or cidr > 32:
+        cidr = _str_to_int(cleaned)
+        if cidr is None or cidr < 0 or cidr > 32:
             return None
         return cidr_to_mask(cidr)
 
@@ -75,7 +111,8 @@ def cidr_to_mask(cidr):
     octets = []
 
     for i in range(0, 32, 8):
-        octets.append(str(int(bits[i:i + 8], 2)))
+        value = _bin_str_to_int(bits[i:i + 8])
+        octets.append(str(value))
 
     return ".".join(octets)
 
@@ -96,8 +133,8 @@ def isPrivateIp(ip):
         return False
 
     parts = ip.split(".")
-    first = int(parts[0])
-    second = int(parts[1])
+    first = _str_to_int(parts[0])
+    second = _str_to_int(parts[1])
 
     if first == 10:
         return True
@@ -121,8 +158,8 @@ def isReservedIp(ip):
     if ip == "255.255.255.255":
         return True
 
-    first = int(ip.split(".")[0])
-    second = int(ip.split(".")[1])
+    first = _str_to_int(ip.split(".")[0])
+    second = _str_to_int(ip.split(".")[1])
 
     if first == 0:
         return True
@@ -146,7 +183,7 @@ def getIPClass(ip):
     if not isIp(ip):
         return ClassMask.ERROR
 
-    firstNum = int(ip.split(".")[0])
+    firstNum = _str_to_int(ip.split(".")[0])
 
     if 0 <= firstNum <= 127:
         return ClassMask.CLASS_A
@@ -244,7 +281,7 @@ def genererTableauCIDR():
 
         decimal = []
         for octet in octets_binaires:
-            decimal.append(str(int(octet, 2)))
+            decimal.append(str(_bin_str_to_int(octet)))
 
         decimal_pointe = ".".join(decimal)
 

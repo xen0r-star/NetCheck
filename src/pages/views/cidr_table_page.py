@@ -3,7 +3,7 @@ import csv
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QFileDialog, QFrame, QHeaderView, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
-from ...utils import genererTableauCIDR
+from ...services.logic import genererTableauCIDR
 
 
 
