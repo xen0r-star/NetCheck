@@ -208,7 +208,7 @@ def getSubnet(ip: str, mask: str) -> str:
     if not isIp(ip) or not normalized:
         return ClassMask.ERROR.value
 
-    if isClassFull(normalized) != True:
+    if not isSubnetMask(normalized):
         return ClassMask.ERROR.value
 
     return getNetworkAddress(ip, normalized)
