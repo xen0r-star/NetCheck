@@ -1,5 +1,5 @@
 from enum import Enum
-import utils
+from .utils import bin_to_int, int_to_bin
 
 class ClassMask(Enum):
     CLASS_A = "255.0.0.0"
@@ -53,7 +53,7 @@ def _cidrToMask(cidr: int) -> str:
     octets = []
 
     for i in range(0, 32, 8):
-        value = utils.bin_to_int(bits[i:i + 8])
+        value = bin_to_int(bits[i:i + 8])
         octets.append(str(value))
 
     return ".".join(octets)
@@ -68,7 +68,7 @@ def isSubnetMask(mask: str) -> bool:
         value = int(part)
         if value is None:
             return False
-        bits.append(utils.int_to_bin(value))
+        bits.append(int_to_bin(value))
 
     return "01" not in "".join(bits)
 
@@ -87,8 +87,8 @@ def getNetworkAddress(ip: str, mask: str) -> str:
         if ip_value is None or mask_value is None:
             return ClassMask.ERROR.value
 
-        ip_bin = utils.int_to_bin(ip_value)
-        mask_bin = utils.int_to_bin(mask_value)
+        ip_bin = int_to_bin(ip_value)
+        mask_bin = int_to_bin(mask_value)
 
         and_bits = []
         for j in range(8):
@@ -97,7 +97,7 @@ def getNetworkAddress(ip: str, mask: str) -> str:
             else:
                 and_bits.append("0")
 
-        and_value = utils.bin_to_int("".join(and_bits))
+        and_value = bin_to_int("".join(and_bits))
         result_parts.append(str(and_value))
 
     return ".".join(result_parts)
@@ -251,7 +251,7 @@ def genererTableauCIDR() -> list[list[str]]:
 
         decimal = []
         for octet in octets_binaires:
-            decimal.append(str(utils.bin_to_int(octet)))
+            decimal.append(str(bin_to_int(octet)))
 
         decimal_pointe = ".".join(decimal)
 
