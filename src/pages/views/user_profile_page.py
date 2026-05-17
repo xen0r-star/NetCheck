@@ -18,8 +18,9 @@ class UserProfilePage(QWidget):
         role = user_info["role"] if user_info else "RÔLE INCONNU"
         self.current_username = username
         self.is_admin = str(role).lower() == "admin"
-        self.last_login = self.db.getLastLogin(username)
+        self.last_login = user_info.get("last_login") if user_info else self.db.getLastLogin(username)
         self.user_metadata = {}
+        self.selected_username = None
 
         # --- Structure principale ---
         layout = QVBoxLayout(self)
@@ -149,7 +150,7 @@ class UserProfilePage(QWidget):
             self.edit_username_input.setObjectName("primaryInput")
             self.edit_username_input.setPlaceholderText("Nom d'utilisateur")
             self.edit_username_input.setMinimumHeight(40)
-            self.edit_username_input.setReadOnly(True)
+            self.edit_username_input.setReadOnly(False)
 
             self.lock_until_input = QLineEdit()
             self.lock_until_input.setObjectName("primaryInput")
@@ -315,6 +316,7 @@ class UserProfilePage(QWidget):
         self.selection_label.setText("Sélection: aucune")
         self.edit_username_input.clear()
         self.lock_until_input.clear()
+        self.selected_username = None
 
         if self.db.last_error:
             self.set_admin_message(self.db.last_error, True)
@@ -330,6 +332,7 @@ class UserProfilePage(QWidget):
 
         selected_username = items[1].text()
         selected_role = items[2].text()
+        self.selected_username = selected_username
         self.edit_username_input.setText(selected_username)
 
         if selected_role.lower() == "member" or selected_role.lower() == "user":
@@ -367,9 +370,23 @@ class UserProfilePage(QWidget):
         role = self.edit_role_input.currentText()
         lock_until_text = self.lock_until_input.text().strip()
 
-        if not username:
+        if not self.selected_username:
             self.set_edit_message("Sélectionnez ou saisissez un utilisateur.", True)
             return
+
+        if not username:
+            self.set_edit_message("Nom d'utilisateur obligatoire.", True)
+            return
+
+        if username != self.selected_username:
+            if not self.db.updateUsername(self.selected_username, username):
+                message = "Nom d'utilisateur déjà pris." if self.db.last_error == "USERNAME_TAKEN" else "Échec de la modification."
+                self.set_edit_message(message, True)
+                return
+
+            if self.selected_username == self.current_username:
+                self.current_username = username
+            self.selected_username = username
 
         role_ok = self.db.updateRole(username, role)
         lock_ok = True
@@ -396,7 +413,7 @@ class UserProfilePage(QWidget):
         self.set_edit_message("Échec de la modification.", True)
 
     def reset_password(self):
-        username = self.edit_username_input.text().strip()
+        username = self.selected_username
 
         if not username:
             self.set_edit_message("Sélectionnez un utilisateur pour réinitialiser le MDP.", True)
@@ -424,7 +441,7 @@ class UserProfilePage(QWidget):
         self.set_edit_message("Échec de la réinitialisation du MDP.", True)
 
     def delete_user(self):
-        username = self.edit_username_input.text().strip()
+        username = self.selected_username
 
         if not username:
             self.set_edit_message("Sélectionnez un utilisateur à supprimer.", True)

@@ -12,8 +12,9 @@ CREATE TABLE public.users (
     last_login TIMESTAMP WITHOUT TIME ZONE
 );
 
-INSERT INTO public.users (username, hashpassword, role) VALUES 
-    ('Jacky', '$2b$13$AcnWmh014VNHVQxSQRAN3uLPx.RlOr0yTikFeTypJaWp3q6ZbTNse', 'membre'),
-    ('Jojo', '$2b$13$x.ibgBxbdPTx4Zo09tx8huwBQGLuE1g2EU78tqEUPIvhlUlDuNmEe', 'membre'),
-    ('Didier', '$2b$13$ihfEB1dhEzXPdmnIxteJveeYMRolPGfVUHQUg1PtehcvHzGzvd5BC', 'membre'),
-    ('Michel', '$2b$13$trTxHQq36FhR7CTS.dm7B.yol3qgZ51kXN1tDOlkB4a6bWc.i6fOK', 'admin');
+INSERT INTO public.users (username, hashpassword, role, is_temporary, is_active, locked_until) VALUES 
+    ('User1', '$2b$13$bHlfV9VzzlDnd67MQoJtFOnjus0tPTc24YLoZ8uCYRjmQuZLbjiCi', 'admin',  false,  true, NULL),
+    ('User2', '$2b$13$bHlfV9VzzlDnd67MQoJtFOnjus0tPTc24YLoZ8uCYRjmQuZLbjiCi', 'membre', false,  true, NULL),
+    ('User3', '$2b$13$bHlfV9VzzlDnd67MQoJtFOnjus0tPTc24YLoZ8uCYRjmQuZLbjiCi', 'membre', true,   true, NULL),
+    ('User4', '$2b$13$bHlfV9VzzlDnd67MQoJtFOnjus0tPTc24YLoZ8uCYRjmQuZLbjiCi', 'membre', false,  true, '2026-12-31 23:59:59'),
+    ('User5', '$2b$13$bHlfV9VzzlDnd67MQoJtFOnjus0tPTc24YLoZ8uCYRjmQuZLbjiCi', 'membre', false, false, NULL);
