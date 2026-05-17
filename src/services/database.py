@@ -30,7 +30,7 @@ class Database:
 
         self.password_min_length = 13
 
-    def connection(self):
+    def _connection(self):
         if self.conn is not None:
             return self.conn
 
@@ -44,19 +44,20 @@ class Database:
             )
             self.last_error = ""
             return self.conn
+        
         except Exception:
             self.last_error = "Erreur de connexion a la base de donnees"
             self.conn = None
             return None
 
     def _cursor(self):
-        conn = self.connection()
+        conn = self._connection()
         if conn is None:
             return None
         return conn.cursor()
 
 
-    def close(self):
+    def _close(self):
         if self.conn is not None:
             self.conn.close()
     
@@ -88,7 +89,7 @@ class Database:
             return False
 
         try:
-            if not is_temporary and not self._is_password_strong(password):
+            if not is_temporary and not self._isPasswordStrong(password):
                 self.last_error = "PASSWORD_WEAK"
                 return False
 
@@ -102,11 +103,12 @@ class Database:
                 """,
                 (username, hashPassword, role, is_temporary, True, 0, None, None)
             )
-            self.connection().commit()
+            self._connection().commit()
             return True
+        
         except Error:
             self.last_error = "Operation SQL impossible"
-            self.connection().rollback()
+            self._connection().rollback()
             return False
         finally:
             cursor.close()
@@ -120,11 +122,12 @@ class Database:
         try:
             cursor.execute("UPDATE users SET role = %s WHERE username = %s", (newRole, username))
             affected = cursor.rowcount
-            self.connection().commit()
+            self._connection().commit()
             return affected > 0
+        
         except Error:
             self.last_error = "Operation SQL impossible"
-            self.connection().rollback()
+            self._connection().rollback()
             return False
         finally:
             cursor.close()
@@ -136,7 +139,7 @@ class Database:
             return False
 
         try:
-            if not self._is_password_strong(newPassword):
+            if not self._isPasswordStrong(newPassword):
                 self.last_error = "PASSWORD_WEAK"
                 return False
 
@@ -155,11 +158,12 @@ class Database:
                 (hashPassword, False, 0, None, username)
             )
             affected = cursor.rowcount
-            self.connection().commit()
+            self._connection().commit()
             return affected > 0
+        
         except Error:
             self.last_error = "Operation SQL impossible"
-            self.connection().rollback()
+            self._connection().rollback()
             return False
         finally:
             cursor.close()
@@ -190,11 +194,12 @@ class Database:
                 (hashPassword, True, 0, None, username)
             )
             affected = cursor.rowcount
-            self.connection().commit()
+            self._connection().commit()
             return affected > 0
+        
         except Error:
             self.last_error = "Operation SQL impossible"
-            self.connection().rollback()
+            self._connection().rollback()
             return False
         finally:
             cursor.close()
@@ -211,11 +216,12 @@ class Database:
                 (locked_until, username)
             )
             affected = cursor.rowcount
-            self.connection().commit()
+            self._connection().commit()
             return affected > 0
+        
         except Error:
             self.last_error = "Operation SQL impossible"
-            self.connection().rollback()
+            self._connection().rollback()
             return False
         finally:
             cursor.close()
@@ -229,11 +235,11 @@ class Database:
         try:
             cursor.execute("UPDATE users SET is_active = %s WHERE username = %s", (False, username))
             affected = cursor.rowcount
-            self.connection().commit()
+            self._connection().commit()
             return affected > 0
         except Error:
             self.last_error = "Operation SQL impossible"
-            self.connection().rollback()
+            self._connection().rollback()
             return False
         finally:
             cursor.close()
@@ -280,20 +286,25 @@ class Database:
                     self.password_reset_required = True
                     return False
 
-                self._reset_failed_attempts(username)
-                self._set_last_login(username)
+                self._resetFailedAttempts(username)
+                self._setLastLogin(username)
                 self.userId = record[0]
                 self.userName = record[1]
                 self.userRole = record[3]
                 self.last_error = ""
                 return True
 
-            self._register_failed_attempt(username, failed_attempts)
+            self._registerFailedAttempt(username, failed_attempts)
             self.last_error = "Identifiants incorrects"
+        else:
+            self.last_error = "Identifiants incorrects"
+
         return False
 
+        
 
-    def _is_password_strong(self, password):
+
+    def _isPasswordStrong(self, password):
         if not password or len(password) < self.password_min_length:
             return False
 
@@ -312,7 +323,7 @@ class Database:
         return True
 
 
-    def _register_failed_attempt(self, username, failed_attempts):
+    def _registerFailedAttempt(self, username, failed_attempts):
         cursor = self._cursor()
         if cursor is None:
             return
@@ -333,14 +344,15 @@ class Database:
                 """,
                 (next_attempts, locked_until, username)
             )
-            self.connection().commit()
+            self._connection().commit()
+
         except Error:
-            self.connection().rollback()
+            self._connection().rollback()
         finally:
             cursor.close()
 
 
-    def _reset_failed_attempts(self, username):
+    def _resetFailedAttempts(self, username):
         cursor = self._cursor()
         if cursor is None:
             return
@@ -350,14 +362,14 @@ class Database:
                 "UPDATE users SET failed_attempts = %s, locked_until = %s WHERE username = %s",
                 (0, None, username)
             )
-            self.connection().commit()
+            self._connection().commit()
         except Error:
-            self.connection().rollback()
+            self._connection().rollback()
         finally:
             cursor.close()
 
 
-    def _set_last_login(self, username):
+    def _setLastLogin(self, username):
         cursor = self._cursor()
         if cursor is None:
             return
@@ -367,9 +379,9 @@ class Database:
                 "UPDATE users SET last_login = %s WHERE username = %s",
                 (datetime.now(), username)
             )
-            self.connection().commit()
+            self._connection().commit()
         except Error:
-            self.connection().rollback()
+            self._connection().rollback()
         finally:
             cursor.close()
 

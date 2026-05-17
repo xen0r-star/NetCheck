@@ -1,4 +1,5 @@
 from enum import Enum
+import utils
 
 class ClassMask(Enum):
     CLASS_A = "255.0.0.0"
@@ -9,42 +10,9 @@ class ClassMask(Enum):
     ERROR = "error"
 
 
-def _str_to_int(text):
-    if not isinstance(text, str) or text == "":
-        return None
 
-    value = 0
-    for char in text:
-        if char < "0" or char > "9":
-            return None
-        value = value * 10 + (ord(char) - ord("0"))
-
-    return value
-
-
-def _int_to_bin8(value):
-    bits = []
-    for shift in range(7, -1, -1):
-        bits.append("1" if (value >> shift) & 1 else "0")
-    return "".join(bits)
-
-
-def _bin_str_to_int(text):
-    if not isinstance(text, str) or text == "":
-        return None
-
-    value = 0
-    for char in text:
-        if char not in ("0", "1"):
-            return None
-        value = (value << 1) | (1 if char == "1" else 0)
-
-    return value
-
-
-
-def isIp(ip):
-    if not isinstance(ip, str):
+def isIp(ip: str) -> bool:
+    if type(ip) is not str:
         return False
 
     parts = ip.split(".")
@@ -55,39 +23,14 @@ def isIp(ip):
         if not part.isdigit():
             return False
 
-        value = _str_to_int(part)
+        value = int(part)
         if value is None or value < 0 or value > 255:
             return False
 
     return True
 
-
-def isSubnetMask(mask):
-    normalized = parse_mask(mask)
-    if not normalized:
-        return False
-
-    bits = []
-    for part in normalized.split("."):
-        value = _str_to_int(part)
-        if value is None:
-            return False
-        bits.append(_int_to_bin8(value))
-
-    return "01" not in "".join(bits)
-
-
-def _ip_to_int(ip):
-    parts = [_str_to_int(part) for part in ip.split(".")]
-    return (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]
-
-
-def _int_to_ip(value):
-    return ".".join(str((value >> shift) & 255) for shift in (24, 16, 8, 0))
-
-
-def parse_mask(mask):
-    if not isinstance(mask, str):
+def parseMask(mask: str) -> str | None:
+    if type(mask) is not str:
         return None
 
     cleaned = mask.strip()
@@ -95,31 +38,97 @@ def parse_mask(mask):
         cleaned = cleaned[1:]
 
     if cleaned.isdigit():
-        cidr = _str_to_int(cleaned)
+        cidr = int(cleaned)
         if cidr is None or cidr < 0 or cidr > 32:
             return None
-        return cidr_to_mask(cidr)
+        return _cidrToMask(cidr)
 
     if isIp(cleaned):
         return cleaned
 
     return None
 
-
-def cidr_to_mask(cidr):
+def _cidrToMask(cidr: int) -> str:
     bits = "1" * cidr + "0" * (32 - cidr)
     octets = []
 
     for i in range(0, 32, 8):
-        value = _bin_str_to_int(bits[i:i + 8])
+        value = utils.bin_to_int(bits[i:i + 8])
         octets.append(str(value))
 
     return ".".join(octets)
 
-def isClassFull(mask):
-    normalized = parse_mask(mask)
+def isSubnetMask(mask: str) -> bool:
+    normalized = parseMask(mask)
     if not normalized:
-        return "error"
+        return False
+
+    bits = []
+    for part in normalized.split("."):
+        value = int(part)
+        if value is None:
+            return False
+        bits.append(utils.int_to_bin(value))
+
+    return "01" not in "".join(bits)
+
+def getNetworkAddress(ip: str, mask: str) -> str:
+    normalized = parseMask(mask)
+    if not isIp(ip) or not normalized:
+        return ClassMask.ERROR.value
+
+    ip_parts = ip.split(".")
+    mask_parts = normalized.split(".")
+
+    result_parts = []
+    for i in range(4):
+        ip_value = int(ip_parts[i])
+        mask_value = int(mask_parts[i])
+        if ip_value is None or mask_value is None:
+            return ClassMask.ERROR.value
+
+        ip_bin = utils.int_to_bin(ip_value)
+        mask_bin = utils.int_to_bin(mask_value)
+
+        and_bits = []
+        for j in range(8):
+            if ip_bin[j] == "1" and mask_bin[j] == "1":
+                and_bits.append("1")
+            else:
+                and_bits.append("0")
+
+        and_value = utils.bin_to_int("".join(and_bits))
+        result_parts.append(str(and_value))
+
+    return ".".join(result_parts)
+
+def getIPClass(ip: str) -> ClassMask:
+    if not isIp(ip):
+        return ClassMask.ERROR
+
+    firstNum = int(ip.split(".")[0])
+
+    if 0 <= firstNum <= 127:
+        return ClassMask.CLASS_A
+    elif 128 <= firstNum <= 191:
+        return ClassMask.CLASS_B
+    elif 192 <= firstNum <= 223:
+        return ClassMask.CLASS_C
+    elif 224 <= firstNum <= 239:
+        return ClassMask.CLASS_D
+    elif 240 <= firstNum <= 255:
+        return ClassMask.CLASS_E
+
+    return ClassMask.ERROR
+
+
+
+
+
+def isClassFull(mask: str) -> bool:
+    normalized = parseMask(mask)
+    if not normalized:
+        return False
 
     return normalized in {
         ClassMask.CLASS_A.value,
@@ -128,13 +137,13 @@ def isClassFull(mask):
     }
 
 
-def isPrivateIp(ip):
+def isPrivateIp(ip: str) -> bool:
     if not isIp(ip):
         return False
 
     parts = ip.split(".")
-    first = _str_to_int(parts[0])
-    second = _str_to_int(parts[1])
+    first = int(parts[0])
+    second = int(parts[1])
 
     if first == 10:
         return True
@@ -148,7 +157,7 @@ def isPrivateIp(ip):
     return False
 
 
-def isReservedIp(ip):
+def isReservedIp(ip: str) -> bool:
     if not isIp(ip):
         return False
 
@@ -158,8 +167,8 @@ def isReservedIp(ip):
     if ip == "255.255.255.255":
         return True
 
-    first = _str_to_int(ip.split(".")[0])
-    second = _str_to_int(ip.split(".")[1])
+    first = int(ip.split(".")[0])
+    second = int(ip.split(".")[1])
 
     if first == 0:
         return True
@@ -179,48 +188,21 @@ def isReservedIp(ip):
     return False
 
 
-def getIPClass(ip):
-    if not isIp(ip):
-        return ClassMask.ERROR
-
-    firstNum = _str_to_int(ip.split(".")[0])
-
-    if 0 <= firstNum <= 127:
-        return ClassMask.CLASS_A
-    elif 128 <= firstNum <= 191:
-        return ClassMask.CLASS_B
-    elif 192 <= firstNum <= 223:
-        return ClassMask.CLASS_C
-    elif 224 <= firstNum <= 239:
-        return ClassMask.CLASS_D
-    elif 240 <= firstNum <= 255:
-        return ClassMask.CLASS_E
-
-    return ClassMask.ERROR
-    
-
-def getIPClassMask(ip):
+def getIPClassMask(ip: str) -> str:
     if not isIp(ip):
         return ClassMask.ERROR.value
 
     ipClasse = getIPClass(ip)
 
-    if ipClasse == ClassMask.CLASS_A:
-        return ClassMask.CLASS_A.value
-    elif ipClasse == ClassMask.CLASS_B:
-        return ClassMask.CLASS_B.value
-    elif ipClasse == ClassMask.CLASS_C:
-        return ClassMask.CLASS_C.value
-    elif ipClasse == ClassMask.CLASS_D:
-        return ClassMask.CLASS_D.value
-    elif ipClasse == ClassMask.CLASS_E:
-        return ClassMask.CLASS_E.value
-    else:
-        return ClassMask.ERROR.value
+    match ipClasse:
+        case ClassMask.CLASS_A | ClassMask.CLASS_B | ClassMask.CLASS_C | ClassMask.CLASS_D | ClassMask.CLASS_E:
+            return ipClasse.value
+        case _:
+            return ClassMask.ERROR.value
 
 
-def getSubnet(ip, mask):
-    normalized = parse_mask(mask)
+def getSubnet(ip: str, mask: str) -> str:
+    normalized = parseMask(mask)
     if not isIp(ip) or not normalized:
         return ClassMask.ERROR.value
 
@@ -230,22 +212,12 @@ def getSubnet(ip, mask):
     return getNetworkAddress(ip, normalized)
 
 
-def getNetworkAddress(ip, mask):
-    normalized = parse_mask(mask)
-    if not isIp(ip) or not normalized:
-        return ClassMask.ERROR.value
-
-    ip_value = _ip_to_int(ip)
-    mask_value = _ip_to_int(normalized)
-    return _int_to_ip(ip_value & mask_value)
-
-
-def areIpsInSameNetwork(ip1, mask1, ip2, mask2):
+def areIpsInSameNetwork(ip1: str, mask1: str, ip2: str, mask2: str) -> bool:
     if not isIp(ip1) or not isIp(ip2):
         return False
 
-    normalized_1 = parse_mask(mask1)
-    normalized_2 = parse_mask(mask2)
+    normalized_1 = parseMask(mask1)
+    normalized_2 = parseMask(mask2)
     if not normalized_1 or not normalized_2:
         return False
 
@@ -264,9 +236,7 @@ def areIpsInSameNetwork(ip1, mask1, ip2, mask2):
     )
 
 
-
-
-def genererTableauCIDR():
+def genererTableauCIDR() -> list[list[str]]:
     tableResult = []
     for cidr in range(8, 31):
         line = []
@@ -281,11 +251,11 @@ def genererTableauCIDR():
 
         decimal = []
         for octet in octets_binaires:
-            decimal.append(str(_bin_str_to_int(octet)))
+            decimal.append(str(utils.bin_to_int(octet)))
 
         decimal_pointe = ".".join(decimal)
 
-        line.append(f'{cidr}')
+        line.append(f"{cidr}")
         line.append(binaire_pointe)
         line.append(decimal_pointe)
 
