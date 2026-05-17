@@ -22,6 +22,7 @@ class Database:
         self.userId = None
         self.userName = None
         self.userRole = None
+        self.previous_last_login = None
         self.last_error = ""
         self.password_reset_required = False
 
@@ -93,7 +94,7 @@ class Database:
                 self.last_error = "PASSWORD_WEAK"
                 return False
 
-            salt = bcrypt.gensalt()
+            salt = bcrypt.gensalt(rounds=13)
             hashPassword = bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
             cursor.execute(
@@ -133,6 +134,28 @@ class Database:
             cursor.close()
 
 
+    def updateUsername(self, username, newUsername):
+        cursor = self._cursor()
+        if cursor is None:
+            return False
+
+        try:
+            cursor.execute(
+                "UPDATE users SET username = %s WHERE username = %s",
+                (newUsername, username)
+            )
+            affected = cursor.rowcount
+            self._connection().commit()
+            return affected > 0
+
+        except Error:
+            self.last_error = "USERNAME_TAKEN"
+            self._connection().rollback()
+            return False
+        finally:
+            cursor.close()
+
+
     def setPassword(self, username, newPassword):
         cursor = self._cursor()
         if cursor is None:
@@ -143,7 +166,7 @@ class Database:
                 self.last_error = "PASSWORD_WEAK"
                 return False
 
-            salt = bcrypt.gensalt()
+            salt = bcrypt.gensalt(rounds=13)
             hashPassword = bcrypt.hashpw(newPassword.encode("utf-8"), salt).decode("utf-8")
 
             cursor.execute(
@@ -179,7 +202,7 @@ class Database:
             return False
 
         try:
-            salt = bcrypt.gensalt()
+            salt = bcrypt.gensalt(rounds=13)
             hashPassword = bcrypt.hashpw(newPassword.encode("utf-8"), salt).decode("utf-8")
 
             cursor.execute(
@@ -286,6 +309,7 @@ class Database:
                     self.password_reset_required = True
                     return False
 
+                self.previous_last_login = record[8]
                 self._resetFailedAttempts(username)
                 self._setLastLogin(username)
                 self.userId = record[0]
@@ -387,6 +411,9 @@ class Database:
 
 
     def getLastLogin(self, username):
+        if self.userName == username and self.previous_last_login is not None:
+            return self.previous_last_login
+
         cursor = self._cursor()
         if cursor is None:
             return None
@@ -405,5 +432,6 @@ class Database:
         return {
             "id": self.userId,
             "username": self.userName,
-            "role": self.userRole
+            "role": self.userRole,
+            "last_login": self.previous_last_login
         }
