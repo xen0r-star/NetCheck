@@ -96,11 +96,17 @@ class GetIpClassPage(QWidget):
         class_name = ip_class.name.replace("CLASS_", "Classe ")
         details = [class_name]
 
-        if isReservedIp(ip):
+        is_reserved = isReservedIp(ip)
+        is_private = isPrivateIp(ip)
+
+        if is_reserved:
             details.append("Adresse réservée")
 
-        if isPrivateIp(ip):
+        if is_private:
             details.append("Adresse privée")
+
+        if not is_reserved and not is_private:
+            details.append("Adresse publique")
 
         self.result.setText("\n".join(details))
         self.result.setStyleSheet("color: #22c55e;")
