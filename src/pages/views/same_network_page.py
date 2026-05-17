@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from ...services.logic import areIpsInSameNetwork, getNetworkAddress, isIp, isSubnetMask, parse_mask
+from ...services.logic import areIpsInSameNetwork, getNetworkAddress, isIp, isSubnetMask, parseMask
 
 
 
@@ -9,15 +9,18 @@ class SameNetworkPage(QWidget):
     def __init__(self):
         super().__init__()
 
+        # --- Structure principale ---
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
+        # --- Carte outil ---
         card = QFrame()
         card.setObjectName("toolCard")
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(24, 22, 24, 22)
         card_layout.setSpacing(14)
 
+        # --- Ligne de saisie ---
         row = QHBoxLayout()
         row.setSpacing(10)
 
@@ -54,6 +57,7 @@ class SameNetworkPage(QWidget):
         row.addWidget(self.mask2_input, 1)
         row.addWidget(run_button)
 
+        # --- Etat vide ---
         self.empty_state = QFrame()
         self.empty_state.setObjectName("emptyState")
         empty_layout = QHBoxLayout(self.empty_state)
@@ -63,6 +67,7 @@ class SameNetworkPage(QWidget):
         empty_text.setObjectName("emptyStateText")
         empty_layout.addWidget(empty_text)
 
+        # --- Carte resultat ---
         self.result_card = QFrame()
         self.result_card.setObjectName("resultCard")
         self.result_card.setVisible(False)
@@ -90,12 +95,13 @@ class SameNetworkPage(QWidget):
 
 
     def run_check(self):
+        # --- Execution de la comparaison ---
         ip1 = self.ip1_input.text().strip()
         mask1 = self.mask1_input.text().strip()
         ip2 = self.ip2_input.text().strip()
         mask2 = self.mask2_input.text().strip()
-        normalized_mask1 = parse_mask(mask1)
-        normalized_mask2 = parse_mask(mask2)
+        normalized_mask1 = parseMask(mask1)
+        normalized_mask2 = parseMask(mask2)
 
         self.empty_state.setVisible(False)
         self.result_card.setVisible(True)

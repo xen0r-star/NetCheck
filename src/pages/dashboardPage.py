@@ -45,6 +45,7 @@ class DashboardWindow(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
+        # --- Coque principale ---
         shell = QFrame()
         shell.setObjectName("dashboardShell")
         shell_layout = QHBoxLayout(shell)
@@ -87,6 +88,7 @@ class DashboardWindow(QWidget):
         user_page = UserProfilePage(user_info=session_user)
         user_page.logout_requested.connect(self.request_logout)
 
+        # --- Liste des pages ---
         pages = [
             ("Table CIDR", "Affiche les masques de /8 à /30 en CIDR, binaire et décimal", QIcon(os.path.join(icons_dir, "cidr.svg")), CidrTablePage()),
             ("Validation IP", "Vérifie si une adresse IPv4 a le bon format", QIcon(os.path.join(icons_dir, "ip.svg")), IsIpPage()),
@@ -119,6 +121,7 @@ class DashboardWindow(QWidget):
 
         nav_layout.addStretch(1)
 
+        # --- Carte utilisateur ---
         user_card = QFrame()
         user_card.setObjectName("navUserCard")
         user_layout = QVBoxLayout(user_card)
@@ -134,18 +137,19 @@ class DashboardWindow(QWidget):
         user_layout.addWidget(user_name)
         user_layout.addWidget(user_role)
 
-        # Ouvre la page profil depuis la carte utilisateur.
         user_card.setCursor(Qt.PointingHandCursor)
         user_card.mousePressEvent = self.open_profile_page
 
         nav_layout.addWidget(user_card)
 
+        # --- Zone de contenu ---
         self.content = QFrame()
         self.content.setObjectName("contentFrame")
         content_layout = QVBoxLayout(self.content)
         content_layout.setContentsMargins(26, 22, 26, 22)
         content_layout.setSpacing(18)
 
+        # --- En-tete page ---
         header_row = QHBoxLayout()
         header_row.setSpacing(12)
 

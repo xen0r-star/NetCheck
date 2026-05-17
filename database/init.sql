@@ -1,3 +1,5 @@
+-- Database: PostgreSQL
+
 CREATE TABLE public.users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -15,4 +17,3 @@ INSERT INTO public.users (username, hashpassword, role) VALUES
     ('Jojo', '$2b$13$x.ibgBxbdPTx4Zo09tx8huwBQGLuE1g2EU78tqEUPIvhlUlDuNmEe', 'membre'),
     ('Didier', '$2b$13$ihfEB1dhEzXPdmnIxteJveeYMRolPGfVUHQUg1PtehcvHzGzvd5BC', 'membre'),
     ('Michel', '$2b$13$trTxHQq36FhR7CTS.dm7B.yol3qgZ51kXN1tDOlkB4a6bWc.i6fOK', 'admin');
-

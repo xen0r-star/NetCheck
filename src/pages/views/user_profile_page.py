@@ -25,6 +25,7 @@ class UserProfilePage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
+        # --- Zone defilante ---
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
@@ -86,6 +87,7 @@ class UserProfilePage(QWidget):
 
         # --- Gestion admin ---
         if self.is_admin:
+            # --- Carte admin ---
             admin_card = QFrame()
             admin_card.setObjectName("resultCard")
             admin_layout = QVBoxLayout(admin_card)
@@ -108,6 +110,7 @@ class UserProfilePage(QWidget):
             header_row.addStretch(1)
             header_row.addWidget(refresh_button)
 
+            # --- Table utilisateurs ---
             self.user_table = QTableWidget()
             self.user_table.setObjectName("cidrTable")
             self.user_table.setColumnCount(8)
@@ -188,6 +191,7 @@ class UserProfilePage(QWidget):
             self.edit_message = QLabel("")
             self.edit_message.setObjectName("statusMessage")
 
+            # --- Carte ajout ---
             add_card = QFrame()
             add_card.setObjectName("toolCard")
             add_layout = QVBoxLayout(add_card)
@@ -211,6 +215,7 @@ class UserProfilePage(QWidget):
             add_actions.addWidget(add_button)
             add_actions.addStretch(1)
 
+            # --- Carte edition ---
             edit_card = QFrame()
             edit_card.setObjectName("toolCard")
             edit_layout = QVBoxLayout(edit_card)

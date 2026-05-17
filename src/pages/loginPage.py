@@ -25,6 +25,7 @@ class LoginWindow(QWidget):
             Qt.WindowCloseButtonHint
         )
 
+		# --- Structure principale ---
 		main_layout = QHBoxLayout(self)
 		main_layout.setContentsMargins(0, 0, 0, 0)
 		main_layout.setSpacing(0)
@@ -56,6 +57,7 @@ class LoginWindow(QWidget):
 
 		self.pending_username = None
 
+		# --- Formulaire connexion ---
 		self.login_form = QFrame()
 		self.login_form.setObjectName("loginForm")
 		login_layout = QVBoxLayout(self.login_form)
@@ -112,6 +114,7 @@ class LoginWindow(QWidget):
 		login_layout.addSpacing(30)
 		login_layout.addWidget(login_button)
 
+		# --- Formulaire reset ---
 		self.reset_form = QFrame()
 		self.reset_form.setObjectName("resetForm")
 		self.reset_form.setVisible(False)
@@ -152,6 +155,7 @@ class LoginWindow(QWidget):
 		reset_layout.addSpacing(30)
 		reset_layout.addWidget(reset_button)
 
+		# --- Message statut ---
 		self.message = QLabel("")
 		self.message.setObjectName("statusMessage")
 		self.message.setAlignment(Qt.AlignCenter)
