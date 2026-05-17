@@ -272,12 +272,12 @@ class Database:
             locked_until = record[7]
 
             if not is_active:
-                self.last_error = "ACCOUNT_INACTIVE"
+                self.last_error = "ACCOUNT INACTIVE"
                 return False
 
             now = datetime.now()
             if locked_until and locked_until > now:
-                self.last_error = "ACCOUNT_LOCKED"
+                self.last_error = "ACCOUNT LOCKED"
                 return False
 
             if bcrypt.checkpw(password.encode('utf-8'), hash_stocke.encode('utf-8')):

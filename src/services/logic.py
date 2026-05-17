@@ -5,8 +5,8 @@ class ClassMask(Enum):
     CLASS_A = "255.0.0.0"
     CLASS_B = "255.255.0.0"
     CLASS_C = "255.255.255.0"
-    CLASS_D = "N/A"
-    CLASS_E = "N/A"
+    CLASS_D = "N/A_D"
+    CLASS_E = "N/A_E"
     ERROR = "error"
 
 
@@ -195,8 +195,10 @@ def getIPClassMask(ip: str) -> str:
     ipClasse = getIPClass(ip)
 
     match ipClasse:
-        case ClassMask.CLASS_A | ClassMask.CLASS_B | ClassMask.CLASS_C | ClassMask.CLASS_D | ClassMask.CLASS_E:
+        case ClassMask.CLASS_A | ClassMask.CLASS_B | ClassMask.CLASS_C:
             return ipClasse.value
+        case ClassMask.CLASS_D | ClassMask.CLASS_E:
+            return "N/A"
         case _:
             return ClassMask.ERROR.value
 

@@ -86,7 +86,7 @@ class GetIpClassMaskPage(QWidget):
         self.result_card.setVisible(True)
 
         if ip_class == ClassMask.CLASS_D:
-            self.result.setText("Classe D — pas de masque de classe")
+            self.result.setText("Classe D — pas de masque classful")
             self.result.setStyleSheet("color: #f59e0b;")
             self.status_badge.setText("CLASSE D")
             self.status_badge.setObjectName("badgeWarn")
@@ -95,7 +95,7 @@ class GetIpClassMaskPage(QWidget):
             return
 
         if ip_class == ClassMask.CLASS_E:
-            self.result.setText("Classe E — pas de masque de classe")
+            self.result.setText("Classe E — pas de masque classful")
             self.result.setStyleSheet("color: #f59e0b;")
             self.status_badge.setText("CLASSE E")
             self.status_badge.setObjectName("badgeWarn")

@@ -192,7 +192,7 @@ class LoginWindow(QWidget):
 				self.message.setStyleSheet("color: #FFB74D;")
 				return
 
-			if db.last_error == "ACCOUNT_LOCKED":
+			if db.last_error == "ACCOUNT LOCKED":
 				self.message.setText("Compte bloqué temporairement. Réessayez plus tard.")
 				self.message.setStyleSheet("color: #FF5252;")
 				return

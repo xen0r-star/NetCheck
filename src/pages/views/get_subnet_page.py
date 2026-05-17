@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from ...services.logic import ClassMask, getSubnet, isClassFull, isIp
+from ...services.logic import ClassMask, getIPClass, getIPClassMask, getSubnet, isIp, isSubnetMask, parseMask
 
 
 
@@ -86,11 +86,21 @@ class GetSubnetPage(QWidget):
         # --- Execution du calcul de sous-reseau ---
         ip = self.ip_input.text().strip()
         mask = self.mask_input.text().strip()
+        normalized_mask = parseMask(mask)
 
         self.empty_state.setVisible(False)
         self.result_card.setVisible(True)
 
-        if not isIp(mask):
+        if not isIp(ip):
+            self.result.setText("Adresse IP invalide")
+            self.result.setStyleSheet("color: #ef4444;")
+            self.status_badge.setText("ERREUR")
+            self.status_badge.setObjectName("badgeInvalid")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            return
+
+        if not normalized_mask or not isSubnetMask(normalized_mask):
             self.result.setText("Masque invalide")
             self.result.setStyleSheet("color: #ef4444;")
             self.status_badge.setText("ERREUR")
@@ -99,8 +109,30 @@ class GetSubnetPage(QWidget):
             self.status_badge.style().polish(self.status_badge)
             return
 
-        if isClassFull(mask) != True:
-            self.result.setText("Masque non classful")
+        ip_class = getIPClass(ip)
+        expected_mask = getIPClassMask(ip)
+
+        if ip_class in (ClassMask.CLASS_D, ClassMask.CLASS_E):
+            self.result.setText("Classe IP non supportee")
+            self.result.setStyleSheet("color: #f59e0b;")
+            self.status_badge.setText("NON SUPPORTEE")
+            self.status_badge.setObjectName("badgeWarn")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            return
+
+        if expected_mask == ClassMask.ERROR.value:
+            self.result.setText("Adresse IP invalide")
+            self.result.setStyleSheet("color: #ef4444;")
+            self.status_badge.setText("ERREUR")
+            self.status_badge.setObjectName("badgeInvalid")
+            self.status_badge.style().unpolish(self.status_badge)
+            self.status_badge.style().polish(self.status_badge)
+            return
+
+        if normalized_mask != expected_mask:
+            class_label = ip_class.name.replace("CLASS_", "Classe ")
+            self.result.setText(f"Masque non classful pour {class_label}")
             self.result.setStyleSheet("color: #f59e0b;")
             self.status_badge.setText("NON CLASSFUL")
             self.status_badge.setObjectName("badgeWarn")
@@ -108,7 +140,7 @@ class GetSubnetPage(QWidget):
             self.status_badge.style().polish(self.status_badge)
             return
 
-        subnet = getSubnet(ip, mask)
+        subnet = getSubnet(ip, normalized_mask)
         if subnet == ClassMask.ERROR.value:
             self.result.setText("Adresse IP invalide")
             self.result.setStyleSheet("color: #ef4444;")
@@ -118,7 +150,7 @@ class GetSubnetPage(QWidget):
             self.status_badge.style().polish(self.status_badge)
             return
 
-        self.result.setText(f"Réseau: {subnet}\nSous-réseau: {subnet}")
+        self.result.setText(f"Réseau: {subnet}\nSous-réseau: Aucun (adressage classful)")
         self.result.setStyleSheet("color: #22c55e;")
         self.status_badge.setText("RÉSEAU")
         self.status_badge.setObjectName("badgeValid")
